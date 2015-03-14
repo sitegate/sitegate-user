@@ -1,33 +1,13 @@
 var config = require('./config/config');
 var User = require('./models/user');
+var bo = require('bograch');
+var AmqpProvider = require('bograch-amqp');
+var routes = require('./app/routes');
 
-var rpc = require('amqp-rpc').factory({
-    url: config.amqpURL
-});
+bo.use(new AmqpProvider({
+  amqpURL: config.amqpURL
+}));
 
-rpc.on('user.getById', function (params, cb) {
-  console.log('Called user.getById with id ' + params.id);
-  User.findById(params.id, cb);
-});
+var worker = bo.worker('amqp');
 
-rpc.on('user.update', function (params, cb) {
-  console.log('Called update');
-  
-  User.findById(params.id, function (err, user) {
-    if (err || !user) {
-      return cb(err, user);
-    }
-    
-    user.username = params.username || user.username;
-
-    var newEmail = params.email ? params.email.toLowerCase() : null;
-    var emailHasBeenUpdated = newEmail && (newEmail !== user.email);
-
-    user.email = newEmail;
-    if (emailHasBeenUpdated) {
-      user.emailVerified = false;
-    }
-    
-    user.save(cb);
-  });
-});
+routes(worker);
