@@ -6,6 +6,7 @@ var update = require('update');
 var validateResetToken = require('validate-reset-token');
 var resetPassword = require('reset-password');
 var sendVerificationEmail = require('send-verification-email');
+var register = require('register');
 
 module.exports = function (worker) {
   worker.on('user.getById', getById);
@@ -21,6 +22,5 @@ module.exports = function (worker) {
   // token, newPassword
   worker.on('user.resetPassword', resetPassword);
   
-  // requires userId, host and appTitle
-  worker.on('user.sendVerificationEmail', sendVerificationEmail);
+  worker.on('user.register', register);
 };

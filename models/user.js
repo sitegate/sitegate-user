@@ -6,7 +6,16 @@
  */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var passportEmail = require('passport-email');
+var ServiceError = require('../app/service-error');
+var crypto = require('crypto');
+
+/* Constants */
+var SALTLEN = 32;
+var ITERATIONS = 25000;
+var KEYLEN = 512;
+var INTERVAL = 100;
+var ENCODING = 'hex';
+var MAX_INTERVAL = 300000;
 
 /**
  * A Validation function for local strategy properties
@@ -68,6 +77,18 @@ var UserSchema = new Schema({
     type: Date,
     default: Date.now
   },
+  /* Limit attempts */
+  last: {
+    type: Date,
+    default: Date.now
+  },
+  attempts: {
+    type: Number,
+    default: 0
+  },
+  /* Password */
+  hash: String,
+  salt: String,
   /* For reset password */
   resetPasswordToken: {
     type: String
@@ -87,8 +108,6 @@ var UserSchema = new Schema({
     ref: 'Client'
   }]
 });
-
-UserSchema.plugin(passportEmail);
 
 /**
  * Find possible not used username
@@ -117,6 +136,88 @@ UserSchema.methods.trusts = function (client) {
     throw 'Client should be passed';
   }
   return this.trustedClients && this.trustedClients.indexOf(client._id) !== -1;
+};
+
+
+
+UserSchema.pre('save', function (next) {
+  this.username = this.username.toLowerCase();
+  this.email = this.email.toLowerCase();
+
+  next();
+});
+
+UserSchema.methods.setPassword = function (password, cb) {
+  if (!password) {
+    return cb(new ServiceError('missingPassword', 'Password argument not set!'));
+  }
+
+  var self = this;
+
+  crypto.randomBytes(SALTLEN, function (err, buf) {
+    if (err) {
+      return cb(err);
+    }
+
+    var salt = buf.toString(ENCODING);
+
+    crypto.pbkdf2(password, salt, ITERATIONS, KEYLEN, function (err, hashRaw) {
+      if (err) {
+        return cb(err);
+      }
+
+      self.hash = new Buffer(hashRaw, 'binary').toString(ENCODING);
+      self.salt = salt;
+
+      cb(null, self);
+    });
+  });
+};
+
+UserSchema.methods.authenticate = function (password, cb) {
+  var self = this;
+
+  var attemptsInterval = Math.pow(INTERVAL, Math.log(this.attempts + 1));
+  var calculatedInterval = (attemptsInterval < MAX_INTERVAL) ? attemptsInterval : MAX_INTERVAL;
+
+  if (Date.now() - this.last < calculatedInterval) {
+    this.last = Date.now();
+    this.save();
+    return cb(null, false, {
+      message: 'Login attempted too soon after previous attempt'
+    });
+  }
+
+  if (!this.salt) {
+    return cb(null, false, {
+      message: 'Authentication not possible. No salt value stored in mongodb collection!'
+    });
+  }
+
+  crypto.pbkdf2(password, this.salt, ITERATIONS, KEYLEN, function (err, hashRaw) {
+    if (err) {
+      return cb(err);
+    }
+
+    var hash = new Buffer(hashRaw, 'binary').toString(ENCODING);
+
+    if (hash === self.hash) {
+
+      self.last = Date.now();
+      self.attempts = 0;
+      self.save();
+
+      return cb(null, self);
+    } else {
+      self.last = Date.now();
+      self.attempts = self.attempts + 1;
+      self.save();
+      return cb(null, false, {
+        result: 'incorrectPassword',
+        message: 'Incorrect password'
+      });
+    }
+  });
 };
 
 module.exports = mongoose.model('User', UserSchema);
