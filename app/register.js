@@ -1,6 +1,6 @@
 'use strict';
 
-var User = require('./models/user');
+var User = require('../models/user');
 var sendVerificationEmail = require('./send-verification-email');
 
 module.exports = function (user, cb) {

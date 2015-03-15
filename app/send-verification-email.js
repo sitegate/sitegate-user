@@ -2,8 +2,7 @@
 
 var crypto = require('crypto');
 var mailerClient = require('./clients/mailer-client');
-var i18n = require('i18next');
-var User = require('./models/user');
+var User = require('../models/user');
 
 var ONE_DAY = 1000 * 60 * 60 * 24;
 

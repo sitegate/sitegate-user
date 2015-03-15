@@ -1,8 +1,6 @@
 var config = require('./config/config');
-var User = require('./models/user');
 var bo = require('bograch');
 var AmqpProvider = require('bograch-amqp');
-var routes = require('./app/routes');
 
 bo.use(new AmqpProvider({
   amqpURL: config.amqpURL
@@ -10,4 +8,5 @@ bo.use(new AmqpProvider({
 
 var worker = bo.worker('amqp');
 
+var routes = require('./app/routes');
 routes(worker);

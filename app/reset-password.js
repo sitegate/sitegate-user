@@ -1,6 +1,6 @@
 'use strict';
 
-var User = require('./models/user');
+var User = require('../models/user');
 var mailerClient = require('./clients/mailer-client');
 
 module.exports = function (params, cb) {

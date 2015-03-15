@@ -1,6 +1,6 @@
 'use strict';
 
-var User = require('./models/user');
+var User = require('../models/user');
 var crypto = require('crypto');
 var mailerClient = require('./clients/mailer-client');
 
