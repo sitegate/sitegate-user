@@ -6,7 +6,7 @@
  */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var ServiceError = require('../app/service-error');
+var ServerError = require('bograch').ServerError;
 var crypto = require('crypto');
 
 /* Constants */
@@ -149,7 +149,7 @@ UserSchema.pre('save', function (next) {
 
 UserSchema.methods.setPassword = function (password, cb) {
   if (!password) {
-    return cb(new ServiceError('missingPassword', 'Password argument not set!'));
+    return cb(new ServerError('missingPassword', 'Password argument not set!'));
   }
 
   var self = this;
@@ -183,15 +183,11 @@ UserSchema.methods.authenticate = function (password, cb) {
   if (Date.now() - this.last < calculatedInterval) {
     this.last = Date.now();
     this.save();
-    return cb(null, false, {
-      message: 'Login attempted too soon after previous attempt'
-    });
+    return cb(new ServerError('soonLoginAttempt', 'Login attempted too soon after previous attempt'), null);
   }
 
   if (!this.salt) {
-    return cb(null, false, {
-      message: 'Authentication not possible. No salt value stored in mongodb collection!'
-    });
+    return cb(new ServerError('noSaltStored', 'Authentication not possible. No salt value stored in mongodb collection!'), false);
   }
 
   crypto.pbkdf2(password, this.salt, ITERATIONS, KEYLEN, function (err, hashRaw) {
@@ -208,15 +204,12 @@ UserSchema.methods.authenticate = function (password, cb) {
       self.save();
 
       return cb(null, self);
-    } else {
-      self.last = Date.now();
-      self.attempts = self.attempts + 1;
-      self.save();
-      return cb(null, false, {
-        result: 'incorrectPassword',
-        message: 'Incorrect password'
-      });
     }
+
+    self.last = Date.now();
+    self.attempts = self.attempts + 1;
+    self.save();
+    return cb(new ServerError('incorrectPassword', 'Incorrect password'), null);
   });
 };
 
