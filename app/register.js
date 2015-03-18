@@ -54,7 +54,7 @@ module.exports = function (user, cb) {
               userId: user._id,
               appTitle: undefined, //!?
               host: undefined //!?
-            });
+            }, function () { });
           }
 
           cb(null, user);

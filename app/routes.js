@@ -25,7 +25,7 @@ module.exports = function (server) {
     validateResetToken: validateResetToken,
     // token, newPassword
     resetPassword: resetPassword,
-    signUp: register,
+    register: register,
     saveOAuthUserProfile: saveOAuthUserProfile,
     disconnectProvider: disconnectProvider,
     changePassword: changePassword,

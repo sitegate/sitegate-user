@@ -8,4 +8,4 @@ var mailerClient = bo.client('amqp', {
 
 mailerClient.register('send');
 
-module.exports = mailerClient;
+module.exports = mailerClient.methods;

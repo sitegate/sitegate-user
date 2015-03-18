@@ -213,4 +213,8 @@ UserSchema.methods.authenticate = function (password, cb) {
   });
 };
 
+UserSchema.set('toJSON', {
+  virtuals: true
+});
+
 module.exports = mongoose.model('User', UserSchema);
