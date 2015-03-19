@@ -22,7 +22,7 @@ function sendPasswordResetEmail(host, appTitle, user, cb) {
         return cb(err, null);
       }
 
-      mailerClient.sendMail({
+      mailerClient.send({
         templateName: 'reset-password-email',
         to: user.email,
         locals: {

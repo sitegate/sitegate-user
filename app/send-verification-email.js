@@ -8,7 +8,7 @@ var ONE_DAY = 1000 * 60 * 60 * 24;
 
 function sendVerificationEmail(params, cb) {
   params = params || {};
-
+  
   if (!params.userId) {
     return cb(new TypeError('userId required'), null);
   }
@@ -18,7 +18,7 @@ function sendVerificationEmail(params, cb) {
   if (!params.appTitle) {
     return cb(new TypeError('appTitle required'), null);
   }
-
+  
   User.findById(params.userId, function (err, user) {
     if (err) {
       return cb(err, null);
@@ -41,7 +41,7 @@ function sendVerificationEmail(params, cb) {
           return cb(err, null);
         }
 
-        mailerClient.sendMail({
+        mailerClient.send({
           templateName: 'email-verification-email',
           to: user.email,
           locals: {
@@ -51,6 +51,8 @@ function sendVerificationEmail(params, cb) {
             siteName: params.appTitle
           }
         });
+        
+        return cb(null, null);
       });
     });
   });

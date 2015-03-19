@@ -11,8 +11,8 @@
   "dependencies": {
     "mongoose": "~3.8.25",
     "lodash": "~3.5.0",
-    "bograch-amqp": "0.0.4",
-    "bograch": "0.0.7",
+    "bograch-amqp": "0.0.5",
+    "bograch": "0.0.8",
     "crypto": "0.0.3"
   }
 }

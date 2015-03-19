@@ -5,7 +5,6 @@ var resetPasswordByEmail = require('./reset-password-by-email');
 var update = require('./update');
 var validateResetToken = require('./validate-reset-token');
 var resetPassword = require('./reset-password');
-var sendVerificationEmail = require('./send-verification-email');
 var register = require('./register');
 var saveOAuthUserProfile = require('./save-oauth-user-profile');
 var disconnectProvider = require('./disconnect-provider');
@@ -28,6 +27,7 @@ module.exports = function (server) {
     saveOAuthUserProfile: saveOAuthUserProfile,
     disconnectProvider: disconnectProvider,
     changePassword: changePassword,
+    sendVerificationEmail: require('./send-verification-email'),
     verifyEmail: verifyEmail,
     getTrustedClients: getTrustedClients,
     authenticate: authenticate,

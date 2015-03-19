@@ -41,7 +41,7 @@ module.exports = function (params, cb) {
           return cb(err, null);
         }
 
-        mailerClient.sendMail({
+        mailerClient.send({
           templateName: 'reset-password-confirm-email',
           to: user.email,
           locals: {
