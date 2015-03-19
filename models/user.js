@@ -131,11 +131,8 @@ UserSchema.statics.findUniqueUsername = function (username, suffix, callback) {
   });
 };
 
-UserSchema.methods.trusts = function (client) {
-  if (!client) {
-    throw 'Client should be passed';
-  }
-  return this.trustedClients && this.trustedClients.indexOf(client._id) !== -1;
+UserSchema.methods.trusts = function (clientId) {
+  return this.trustedClients && this.trustedClients.indexOf(clientId) !== -1;
 };
 
 

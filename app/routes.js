@@ -9,7 +9,6 @@ var sendVerificationEmail = require('./send-verification-email');
 var register = require('./register');
 var saveOAuthUserProfile = require('./save-oauth-user-profile');
 var disconnectProvider = require('./disconnect-provider');
-var trustClient = require('./trust-client');
 var changePassword = require('./change-password');
 var verifyEmail = require('./verify-email');
 var getTrustedClients = require('./get-trusted-clients');
@@ -31,6 +30,8 @@ module.exports = function (server) {
     changePassword: changePassword,
     verifyEmail: verifyEmail,
     getTrustedClients: getTrustedClients,
-    authenticate: authenticate
+    authenticate: authenticate,
+    trustsClient: require('./trusts-client'),
+    trustClient: require('./trust-client')
   });
 };
