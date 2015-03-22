@@ -1,8 +1,8 @@
 'use strict';
 
-var User = require('../models/user');
+var User = require('../../models/user');
 var crypto = require('crypto');
-var mailerClient = require('./clients/mailer-client');
+var Mailer = require('../clients/mailer');
 
 var ONE_HOUR = 3600000;
 
@@ -22,7 +22,7 @@ function sendPasswordResetEmail(host, appTitle, user, cb) {
         return cb(err, null);
       }
 
-      mailerClient.send({
+      Mailer.send({
         templateName: 'reset-password-email',
         to: user.email,
         locals: {

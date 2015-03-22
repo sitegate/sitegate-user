@@ -1,8 +1,8 @@
 'use strict';
 
 var crypto = require('crypto');
-var mailerClient = require('./clients/mailer-client');
-var User = require('../models/user');
+var Mailer = require('../clients/mailer');
+var User = require('../../models/user');
 
 var ONE_DAY = 1000 * 60 * 60 * 24;
 
@@ -41,7 +41,7 @@ function sendVerificationEmail(params, cb) {
           return cb(err, null);
         }
 
-        mailerClient.send({
+        Mailer.send({
           templateName: 'email-verification-email',
           to: user.email,
           locals: {

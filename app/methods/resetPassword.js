@@ -1,7 +1,7 @@
 'use strict';
 
-var User = require('../models/user');
-var mailerClient = require('./clients/mailer-client');
+var User = require('../../models/user');
+var Mailer = require('../clients/mailer');
 
 module.exports = function (params, cb) {
   params = params || {};
@@ -41,7 +41,7 @@ module.exports = function (params, cb) {
           return cb(err, null);
         }
 
-        mailerClient.send({
+        Mailer.send({
           templateName: 'reset-password-confirm-email',
           to: user.email,
           locals: {

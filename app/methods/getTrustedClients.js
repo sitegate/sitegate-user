@@ -1,7 +1,7 @@
 'use strict';
 
-var User = require('../models/user');
-var clientClient = require('./clients/client-client');
+var User = require('../../models/user');
+var Client = require('../clients/client');
 
 module.exports = function (params, cb) {
   params = params || {};
@@ -23,7 +23,7 @@ module.exports = function (params, cb) {
       return cb(null, []);
     }
         
-    clientClient.getByIds({
+    Client.getByIds({
       clientIds: user.trustedClients
     }, cb);
   });

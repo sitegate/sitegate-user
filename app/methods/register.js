@@ -1,7 +1,7 @@
 'use strict';
 
-var User = require('../models/user');
-var sendVerificationEmail = require('./send-verification-email');
+var User = require('../../models/user');
+var sendVerificationEmail = require('./sendVerificationEmail');
 var ServerError = require('bograch').ServerError;
 
 module.exports = function (user, cb) {

@@ -1,6 +1,6 @@
 'use strict';
 
-var User = require('../models/user');
+var User = require('../../models/user');
 
 module.exports = function (params, cb) {
   params = params || {};
@@ -11,7 +11,7 @@ module.exports = function (params, cb) {
   if (!params.clientId) {
     return cb(new Error('clientId is missing'));
   }
-
+  
   User.findById(params.userId, function (err, user) {
     if (err) {
       return cb(err);
@@ -20,11 +20,7 @@ module.exports = function (params, cb) {
     if (!user) {
       return cb(new Error('User not found'));
     }
-
-    // TODO: check if client exists?
-    user.trustedClients.push(params.clientId);
-    user.save(function (err, user) {
-      return cb(err, user);
-    });
+    
+    cb(null, user.trusts(params.clientId));
   });
 };

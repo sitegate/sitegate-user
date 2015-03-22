@@ -1,6 +1,6 @@
 'use strict';
 
-var User = require('../models/user');
+var User = require('../../models/user');
 var ServerError = require('bograch').ServerError;
 
 function saveNewPassword(user, params, cb) {

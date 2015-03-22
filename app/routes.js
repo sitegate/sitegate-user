@@ -1,37 +1,13 @@
 'use strict';
 
-var getById = require('./get-by-id');
-var resetPasswordByEmail = require('./reset-password-by-email');
-var update = require('./update');
-var validateResetToken = require('./validate-reset-token');
-var resetPassword = require('./reset-password');
-var register = require('./register');
-var saveOAuthUserProfile = require('./save-oauth-user-profile');
-var disconnectProvider = require('./disconnect-provider');
-var changePassword = require('./change-password');
-var verifyEmail = require('./verify-email');
-var getTrustedClients = require('./get-trusted-clients');
-var authenticate = require('./authenticate');
+var fs = require('fs');
 
 module.exports = function (server) {
-  server.addMethods({
-    getById: getById,
-    update: update,
-    // requires email, host and appTitle
-    resetPasswordByEmail: resetPasswordByEmail,
-    // token
-    validateResetToken: validateResetToken,
-    // token, newPassword
-    resetPassword: resetPassword,
-    register: register,
-    saveOAuthUserProfile: saveOAuthUserProfile,
-    disconnectProvider: disconnectProvider,
-    changePassword: changePassword,
-    sendVerificationEmail: require('./send-verification-email'),
-    verifyEmail: verifyEmail,
-    getTrustedClients: getTrustedClients,
-    authenticate: authenticate,
-    trustsClient: require('./trusts-client'),
-    trustClient: require('./trust-client')
+  var methods = fs.readdirSync('./app/methods/');
+  
+  var scope = {};
+  methods.forEach(function (method) {
+    scope[method.replace('.js', '')] = require('./methods/' + method);
   });
+  server.addMethods(scope);
 };

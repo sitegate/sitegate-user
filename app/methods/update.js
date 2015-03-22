@@ -1,7 +1,7 @@
 'use strict';
 
-var User = require('../models/user');
-var sendVerificationEmail = require('./send-verification-email');
+var User = require('../../models/user');
+var sendVerificationEmail = require('./sendVerificationEmail');
 
 module.exports = function (params, cb) {
   console.log('Called update');
