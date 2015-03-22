@@ -1,6 +1,7 @@
 'use strict';
 
 var User = require('../models/user');
+var ServerError = require('bograch').ServerError;
 
 module.exports = function (params, cb) {
   User.findOne({
@@ -11,10 +12,14 @@ module.exports = function (params, cb) {
       }
     ]
   }, function (err, user) {
-    if (err || !user) {
+    if (err) {
       return cb(err, user);
     }
-        
+    
+    if (!user) {
+      return cb(new ServerError('incorrectUsernameOrEmail'), user);
+    }
+    
     return user.authenticate(params.password, cb);
   });
 };
