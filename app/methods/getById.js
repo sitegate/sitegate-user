@@ -2,6 +2,25 @@
 
 var User = require('../../models/user');
 
-module.exports = function (id, cb) {
-  User.findById(id, cb);
+/**
+ * Returns a user by its ID
+ * @param {string} id - The unique ID of the User.
+ * @param {Object} [options] - Options that can define what data should
+ * be returned.
+ * @param {function} [cb] - A callback function that will consume the results.
+ */
+module.exports = function () {
+  var id = arguments[0];
+  var options, cb;
+  if (typeof arguments[1] === 'function') {
+    cb = arguments[1];
+  } else {
+    options = arguments[1];
+    cb = arguments[2];
+  }
+  
+  options = options || {};
+  options.fields = options.fields || [];
+  
+  User.findById(id, options.fields.join(' '), cb);
 };
