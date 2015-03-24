@@ -6,10 +6,10 @@
   "author": "Zoltan Kochan",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "mongoose": "~3.8.25",
-    "lodash": "~3.5.0",
+    "bograch": "0.0.10",
     "bograch-amqp": "0.0.5",
-    "bograch": "0.0.8",
-    "crypto": "0.0.3"
+    "crypto": "0.0.3",
+    "lodash": "~3.5.0",
+    "mongoose": "~3.8.25"
   }
 }
