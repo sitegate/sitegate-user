@@ -6,20 +6,12 @@ var User = require('../../models/user');
 
 var ONE_DAY = 1000 * 60 * 60 * 24;
 
-function sendVerificationEmail(params, cb) {
-  params = params || {};
-  
-  if (!params.userId) {
+function sendVerificationEmail(userId, cb) {
+  if (!userId) {
     return cb(new TypeError('userId required'), null);
   }
-  if (!params.host) {
-    return cb(new TypeError('host required'), null);
-  }
-  if (!params.appTitle) {
-    return cb(new TypeError('appTitle required'), null);
-  }
   
-  User.findById(params.userId, function (err, user) {
+  User.findById(userId, function (err, user) {
     if (err) {
       return cb(err, null);
     }
@@ -46,9 +38,7 @@ function sendVerificationEmail(params, cb) {
           to: user.email,
           locals: {
             username: user.username,
-            confirmationUrl: 'http://' + params.host +
-              '/verify-email/' + user.emailVerificationToken,
-            siteName: params.appTitle
+            token: user.emailVerificationToken
           }
         });
         

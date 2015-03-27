@@ -2,13 +2,13 @@
 
 var User = require('../../models/user');
 
-module.exports = function (params, cb) {
-  if (!params || !params.token) {
+module.exports = function (token, cb) {
+  if (!token) {
     return cb(new TypeError('Token is required in the token validation function'), null);
   }
   
   User.findOne({
-    resetPasswordToken: params.token,
+    resetPasswordToken: token,
     resetPasswordExpires: {
       $gt: Date.now()
     }

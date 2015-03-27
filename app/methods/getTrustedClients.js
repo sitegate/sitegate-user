@@ -3,14 +3,12 @@
 var User = require('../../models/user');
 var Client = require('../clients/client');
 
-module.exports = function (params, cb) {
-  params = params || {};
-  
-  if (!params.userId) {
+module.exports = function (userId, cb) {
+  if (!userId) {
     return cb(new Error('userId is missing'));
   }
   
-  User.findById(params.userId, function (err, user) {
+  User.findById(userId, function (err, user) {
     if (err) {
       return cb(err);
     }

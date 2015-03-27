@@ -2,15 +2,13 @@
 
 var User = require('../../models/user');
 
-module.exports = function (params, cb) {
-  params = params || {};
-
-  if (!params.token) {
+module.exports = function (token, cb) {
+  if (!token) {
     return cb(new Error('token is missing'));
   }
 
   User.findOne({
-    emailVerificationToken: params.token,
+    emailVerificationToken: token,
     emailVerificationTokenExpires: {
       $gt: Date.now()
     }

@@ -6,7 +6,7 @@ var Mailer = require('../clients/mailer');
 
 var ONE_HOUR = 3600000;
 
-function sendPasswordResetEmail(host, appTitle, user, cb) {
+function sendPasswordResetEmail(user, cb) {
   crypto.randomBytes(20, function (err, buffer) {
     if (err) {
       return cb(err, null);
@@ -27,22 +27,20 @@ function sendPasswordResetEmail(host, appTitle, user, cb) {
         to: user.email,
         locals: {
           username: user.username,
-          url: 'http://' + host +
-            '/reset/' + user.resetPasswordToken,
-          siteName: appTitle
+          token: user.resetPasswordToken
         }
       }, cb);
     });
   });
 }
 
-module.exports = function (params, cb) {
-  if (!params || !params.email) {
+module.exports = function (email, cb) {
+  if (!email) {
     return cb(new TypeError('No email provided to reset password'), null);
   }
 
   User.findOne({
-    email: params.email.toLowerCase()
+    email: email.toLowerCase()
   }, function (err, user) {
     if (err) {
       return cb(err, null);
@@ -52,6 +50,6 @@ module.exports = function (params, cb) {
       return cb(new Error('There is no user with such email in our system'), null);
     }
 
-    return sendPasswordResetEmail(params.host, params.appTitle, user, cb);
+    return sendPasswordResetEmail(user, cb);
   });
 };
