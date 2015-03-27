@@ -20,9 +20,7 @@ module.exports = function (userId, cb) {
     if (!user.trustedClients || user.trustedClients.length === 0) {
       return cb(null, []);
     }
-        
-    Client.getByIds({
-      clientIds: user.trustedClients
-    }, cb);
+    
+    Client.getByIds(user.trustedClients, cb);
   });
 };
