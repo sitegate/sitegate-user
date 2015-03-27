@@ -2,38 +2,48 @@
 
 var User = require('../../models/user');
 var sendVerificationEmail = require('./sendVerificationEmail');
+var ServerError = require('bograch').ServerError;
 
-module.exports = function (params, cb) {
-  console.log('Called update');
-  
-  User.findById(params.id, function (err, user) {
-    if (err || !user) {
+module.exports = function update(id, params, cb) {
+  User.findById(id, function (err, user) {
+    if (err) {
       return cb(err, user);
     }
     
+    if (!user) {
+      return cb(new ServerError('userNotFound'));
+    }
+
     user.username = params.username || user.username;
 
     var newEmail = params.email ? params.email.toLowerCase() : null;
-    var emailHasBeenUpdated = newEmail && (newEmail !== user.email);
+    var sendVerificationEmail;
+
+    if (typeof params.emailVerified === 'boolean') {
+      user.emailVerified = params.emailVerified;
+    } else {
+      var emailHasBeenUpdated = newEmail && (newEmail !== user.email);
+      sendVerificationEmail = emailHasBeenUpdated;
+
+      if (emailHasBeenUpdated) {
+        user.emailVerified = false;
+      }
+    }
 
     user.email = newEmail;
-    if (emailHasBeenUpdated) {
-      user.emailVerified = false;
-    }
+    user.role = params.role || user.role;
     
     user.save(function (err, user) {
       if (err) {
         return cb(err, null);
       }
-      
-      if (emailHasBeenUpdated) {
+
+      if (sendVerificationEmail) {
         sendVerificationEmail({
-          userId: user._id,
-          appTitle: undefined, //!?
-          host: undefined //!?
+          userId: user._id
         });
       }
-      
+
       return cb(err, user, {
         emailHasBeenUpdated: emailHasBeenUpdated
       });

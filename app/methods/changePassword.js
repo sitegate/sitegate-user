@@ -38,8 +38,8 @@ module.exports = function (params, cb) {
     if (!user) {
       return cb(new ServerError('userNotFound', 'User not found'));
     }
-
-    if (typeof user.hash === 'undefined') {
+    
+    if (params.forceNewPassword || typeof user.hash === 'undefined') {
       return saveNewPassword(user, params, cb);
     }
     user.authenticate(params.currentPassword, function (err, user) {

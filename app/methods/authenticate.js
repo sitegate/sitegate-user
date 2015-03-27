@@ -3,7 +3,7 @@
 var User = require('../../models/user');
 var ServerError = require('bograch').ServerError;
 
-module.exports = function (params, cb) {
+module.exports = function authenticate(params, cb) {
   User.findOne({
     $or: [{
         username: params.usernameOrEmail
