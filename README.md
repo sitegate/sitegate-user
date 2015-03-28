@@ -61,3 +61,9 @@ User.update('550b42003376b4ec12fbbcb1', {
 | id | string | The ID of the user that has to be updated. |
 | updatedFields | object | A hash of the fields that have to be updated with the new values. |
 | cb | function(err, user) | A callback function to receive the updated user. |
+
+
+License
+========
+
+The MIT License (MIT)
