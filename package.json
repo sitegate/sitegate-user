@@ -2,14 +2,18 @@
   "name": "sitegate-user",
   "version": "0.0.0",
   "description": "User microservice for SiteGate",
-  "main": "index.js",
+  "main": "app.js",
   "author": "Zoltan Kochan",
-  "license": "BSD-2-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/zkochan/sitegate-user.git"
+  },
+  "license": "MIT",
   "dependencies": {
     "bograch": "0.0.10",
     "bograch-amqp": "0.0.5",
+    "convict": "^0.6.1",
     "crypto": "0.0.3",
-    "lodash": "~3.5.0",
     "mongoose": "~3.8.25"
   }
 }

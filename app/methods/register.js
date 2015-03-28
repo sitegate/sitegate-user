@@ -48,7 +48,7 @@ module.exports = function (fields, cb) {
           }
 
           if (!user.emailVerified) {
-            sendVerificationEmail(user._id);
+            sendVerificationEmail(user._id, function () {});
           }
 
           cb(null, user);
