@@ -31,7 +31,7 @@ User.getById('550b42003376b4ec12fbbcb1', function (err, user) {
       <td>A hash with options.
         <br>Where
         <ul>
-          <li>**fields** - <code>{Array.&lt;string&gt;}</code> - List of fields to be returned.</li>
+          <li><b><code>fields</code></b> - <code>{Array.&lt;string&gt;}</code> - List of fields to be returned.</li>
         </ul>
       </td>
     </tr>
