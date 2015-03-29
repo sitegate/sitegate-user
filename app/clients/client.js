@@ -6,6 +6,6 @@ var client = bo.client('amqp', {
   name: 'client'
 });
 
-client.register('getByIds');
+client.register('query');
 
 module.exports = client.methods;

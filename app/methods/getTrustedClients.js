@@ -21,6 +21,6 @@ module.exports = function (userId, cb) {
       return cb(null, []);
     }
     
-    Client.getByIds(user.trustedClients, cb);
+    Client.query({ ids: user.trustedClients }, cb);
   });
 };
