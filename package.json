@@ -10,8 +10,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "bograch": "0.0.10",
-    "bograch-amqp": "0.0.5",
+    "bograch": "0.0.18",
+    "bograch-amqp": "0.0.8",
     "convict": "^0.6.1",
     "crypto": "0.0.3",
     "mongoose": "~3.8.25"

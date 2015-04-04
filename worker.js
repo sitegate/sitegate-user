@@ -1,14 +1,15 @@
 var config = require('./config');
 var bo = require('bograch');
-var AmqpTransporter = require('bograch-amqp');
+var amqpTransport = require('bograch-amqp');
 
-bo.use(new AmqpTransporter({
-  amqpURL: config.get('amqpURL')
-}));
+bo.use(amqpTransport);
 
 var server = bo.server('amqp', {
-  name: 'user'
+  name: 'user',
+  amqpURL: config.get('amqpURL')
 });
 
 var routes = require('./app/routes');
 routes(server);
+
+server.start();
