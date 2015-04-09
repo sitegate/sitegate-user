@@ -5,7 +5,7 @@ var config = require('../../config');
 
 var mailerClient = bo.client('amqp', {
   name: 'mailer',
-  amqpURL: config.get('amqpURL')
+  amqpURL: config.get('amqpUrl')
 });
 
 mailerClient.register('send');
