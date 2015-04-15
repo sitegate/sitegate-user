@@ -3,7 +3,7 @@
 var fs = require('fs');
 
 module.exports = function (server) {
-  var methods = fs.readdirSync('./app/methods/');
+  var methods = fs.readdirSync(__dirname  + '/methods/');
   
   var scope = {};
   methods.forEach(function (method) {

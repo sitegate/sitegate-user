@@ -14,7 +14,7 @@ module.exports = function (fields, cb) {
   }
   
   var user = new User(fields);
-    
+  
   User.findOne({
     username: user.username
   }, function (err, existingUser) {
