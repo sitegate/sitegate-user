@@ -2,10 +2,10 @@
 
 var User = require('../../models/user');
 
-module.exports = function (params, cb) {
+module.exports = function(params, cb) {
   var providerUserProfile = params.providerUserProfile;
   var loggedUser = params.loggedUser;
-    
+
   if (!loggedUser) {
     // Define a search query fields
     var searchMainProviderIdentifierField =
@@ -30,7 +30,7 @@ module.exports = function (params, cb) {
       $or: [mainProviderSearchQuery, additionalProviderSearchQuery]
     };
 
-    User.findOne(searchQuery, function (err, user) {
+    User.findOne(searchQuery, function(err, user) {
       if (err) {
         return cb(err);
       }
@@ -39,7 +39,7 @@ module.exports = function (params, cb) {
         var possibleUsername = providerUserProfile.username ||
           (providerUserProfile.email ? providerUserProfile.email.split('@')[0] : '');
 
-        return User.findUniqueUsername(possibleUsername, null, function (availableUsername) {
+        return User.findUniqueUsername(possibleUsername, null, function(availableUsername) {
           var user = new User({
             firstName: providerUserProfile.firstName,
             lastName: providerUserProfile.lastName,
@@ -52,22 +52,22 @@ module.exports = function (params, cb) {
           });
 
           // And save the user
-          user.save(function (err) {
+          user.save(function(err) {
             return cb(err, user);
           });
         });
       }
       return cb(err, user);
     });
-    
+
     return;
   }
   // User is already logged in, join the provider data to the existing user
-  User.findById(loggedUser.id, function (err, user) {
+  User.findById(loggedUser.id, function(err, user) {
     if (err) {
       return cb(err);
     }
-        
+
     if (!user) {
       return cb(new Error('Logged in user not found in the datastore'));
     }
@@ -85,15 +85,15 @@ module.exports = function (params, cb) {
 
       // Then tell mongoose that we've updated the additionalProvidersData field
       user.markModified('additionalProvidersData');
-      
+
       // And save the user
-      user.save(function (err) {
+      user.save(function(err) {
         return cb(err, user/*, '/settings/accounts'*/);
       });
 
       return;
     }
-    
+
     return cb(new Error('User is already connected using this provider'), user);
   });
 };

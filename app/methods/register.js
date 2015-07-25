@@ -4,7 +4,7 @@ var User = require('../../models/user');
 var sendVerificationEmail = require('./sendVerificationEmail');
 var ServerError = require('bograch').ServerError;
 
-module.exports = function (fields, cb) {
+module.exports = function(fields, cb) {
   if (!fields.username) {
     return cb(new TypeError('missing Username'));
   }
@@ -12,12 +12,12 @@ module.exports = function (fields, cb) {
   if (!fields.email) {
     return cb(new TypeError('missing Email'));
   }
-  
+
   var user = new User(fields);
-  
+
   User.findOne({
     username: user.username
-  }, function (err, existingUser) {
+  }, function(err, existingUser) {
     if (err) {
       return cb(err);
     }
@@ -28,7 +28,7 @@ module.exports = function (fields, cb) {
 
     User.findOne({
       email: user.email
-    }, function (err, existingUser) {
+    }, function(err, existingUser) {
       if (err) {
         return cb(err);
       }
@@ -37,18 +37,18 @@ module.exports = function (fields, cb) {
         return cb(new ServerError('emailExists', 'email already Exists'));
       }
 
-      user.setPassword(fields.password, function (err, user) {
+      user.setPassword(fields.password, function(err, user) {
         if (err) {
           return cb(err);
         }
 
-        user.save(function (err) {
+        user.save(function(err) {
           if (err) {
             return cb(err);
           }
 
           if (!user.emailVerified) {
-            sendVerificationEmail(user._id, function () {});
+            sendVerificationEmail(user._id, function() {});
           }
 
           cb(null, user);

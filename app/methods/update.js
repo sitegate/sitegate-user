@@ -5,11 +5,11 @@ var sendVerificationEmail = require('./sendVerificationEmail');
 var ServerError = require('bograch').ServerError;
 
 module.exports = function update(id, params, cb) {
-  User.findById(id, function (err, user) {
+  User.findById(id, function(err, user) {
     if (err) {
       return cb(err, user);
     }
-    
+
     if (!user) {
       return cb(new ServerError('userNotFound'));
     }
@@ -32,8 +32,8 @@ module.exports = function update(id, params, cb) {
 
     user.email = newEmail;
     user.role = params.role || user.role;
-    
-    user.save(function (err, user) {
+
+    user.save(function(err, user) {
       if (err) {
         return cb(err, null);
       }

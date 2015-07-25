@@ -3,7 +3,7 @@
 var User = require('../../models/user');
 var Mailer = require('../clients/mailer');
 
-module.exports = function (params, cb) {
+module.exports = function(params, cb) {
   params = params || {};
 
   if (!params.token) {
@@ -18,7 +18,7 @@ module.exports = function (params, cb) {
     resetPasswordExpires: {
       $gt: Date.now()
     }
-  }, function (err, user) {
+  }, function(err, user) {
     if (err) {
       return cb(err, null);
     }
@@ -31,12 +31,12 @@ module.exports = function (params, cb) {
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
 
-    user.setPassword(params.newPassword, function (err, user) {
+    user.setPassword(params.newPassword, function(err, user) {
       if (err) {
         return cb(err, null);
       }
 
-      user.save(function (err) {
+      user.save(function(err) {
         if (err) {
           return cb(err, null);
         }

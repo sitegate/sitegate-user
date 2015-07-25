@@ -20,7 +20,7 @@ var MAX_INTERVAL = 300000;
 /**
  * A Validation function for local strategy properties
  */
-var validateLocalStrategyProperty = function (property) {
+var validateLocalStrategyProperty = function(property) {
   return ((this.provider !== 'local' && !this.updated) || property.length);
 };
 
@@ -110,13 +110,13 @@ var UserSchema = new Schema({
 /**
  * Find possible not used username
  */
-UserSchema.statics.findUniqueUsername = function (username, suffix, callback) {
+UserSchema.statics.findUniqueUsername = function(username, suffix, callback) {
   var _this = this;
   var possibleUsername = username + (suffix || '');
 
   _this.findOne({
     username: possibleUsername
-  }, function (err, user) {
+  }, function(err, user) {
     if (!err) {
       if (!user) {
         callback(possibleUsername);
@@ -129,34 +129,34 @@ UserSchema.statics.findUniqueUsername = function (username, suffix, callback) {
   });
 };
 
-UserSchema.methods.trusts = function (clientId) {
+UserSchema.methods.trusts = function(clientId) {
   return this.trustedClients && this.trustedClients.indexOf(clientId) !== -1;
 };
 
 
 
-UserSchema.pre('save', function (next) {
+UserSchema.pre('save', function(next) {
   this.username = this.username.toLowerCase();
   this.email = this.email.toLowerCase();
 
   next();
 });
 
-UserSchema.methods.setPassword = function (password, cb) {
+UserSchema.methods.setPassword = function(password, cb) {
   if (!password) {
     return cb(new ServerError('missingPassword', 'Password argument not set!'));
   }
 
   var self = this;
 
-  crypto.randomBytes(SALTLEN, function (err, buf) {
+  crypto.randomBytes(SALTLEN, function(err, buf) {
     if (err) {
       return cb(err);
     }
 
     var salt = buf.toString(ENCODING);
 
-    crypto.pbkdf2(password, salt, ITERATIONS, KEYLEN, function (err, hashRaw) {
+    crypto.pbkdf2(password, salt, ITERATIONS, KEYLEN, function(err, hashRaw) {
       if (err) {
         return cb(err);
       }
@@ -169,7 +169,7 @@ UserSchema.methods.setPassword = function (password, cb) {
   });
 };
 
-UserSchema.methods.authenticate = function (password, cb) {
+UserSchema.methods.authenticate = function(password, cb) {
   var self = this;
 
   var attemptsInterval = Math.pow(INTERVAL, Math.log(this.attempts + 1));
@@ -185,7 +185,7 @@ UserSchema.methods.authenticate = function (password, cb) {
     return cb(new ServerError('noSaltStored', 'Authentication not possible. No salt value stored in mongodb collection!'), false);
   }
 
-  crypto.pbkdf2(password, this.salt, ITERATIONS, KEYLEN, function (err, hashRaw) {
+  crypto.pbkdf2(password, this.salt, ITERATIONS, KEYLEN, function(err, hashRaw) {
     if (err) {
       return cb(err);
     }
@@ -209,7 +209,7 @@ UserSchema.methods.authenticate = function (password, cb) {
 };
 
 UserSchema.set('toJSON', {
-  transform: function (doc, ret, options) {
+  transform: function(doc, ret, options) {
     ret.id = ret._id;
     delete ret._id;
     delete ret.__v;

@@ -15,11 +15,11 @@ module.exports = function authenticate(params, cb) {
     if (err) {
       return cb(err, user);
     }
-    
+
     if (!user) {
       return cb(new ServerError('incorrectUsernameOrEmail'), user);
     }
-    
+
     return user.authenticate(params.password, cb);
   });
 };

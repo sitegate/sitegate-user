@@ -9,7 +9,7 @@ var User = require('../../models/user');
  * be returned.
  * @param {function} [cb] - A callback function that will consume the results.
  */
-module.exports = function () {
+module.exports = function() {
   var username = arguments[0];
   var options, cb;
   if (typeof arguments[1] === 'function') {
@@ -18,9 +18,9 @@ module.exports = function () {
     options = arguments[1];
     cb = arguments[2];
   }
-  
+
   options = options || {};
   options.fields = options.fields || [];
-  
+
   User.findOne({ username: username }, options.fields.join(' '), cb);
 };

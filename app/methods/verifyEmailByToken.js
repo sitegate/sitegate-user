@@ -2,7 +2,7 @@
 
 var User = require('../../models/user');
 
-module.exports = function (token, cb) {
+module.exports = function(token, cb) {
   if (!token) {
     return cb(new Error('token is missing'));
   }
@@ -12,7 +12,7 @@ module.exports = function (token, cb) {
     emailVerificationTokenExpires: {
       $gt: Date.now()
     }
-  }, function (err, user) {
+  }, function(err, user) {
     if (err) {
       return cb(err);
     }
@@ -24,7 +24,7 @@ module.exports = function (token, cb) {
     user.emailVerified = true;
     user.emailVerificationToken = null;
 
-    user.save(function (err) {
+    user.save(function(err) {
       if (err) {
         return cb(err);
       }

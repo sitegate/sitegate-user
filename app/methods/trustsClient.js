@@ -2,7 +2,7 @@
 
 var User = require('../../models/user');
 
-module.exports = function (params, cb) {
+module.exports = function(params, cb) {
   params = params || {};
 
   if (!params.userId) {
@@ -11,8 +11,8 @@ module.exports = function (params, cb) {
   if (!params.clientId) {
     return cb(new Error('clientId is missing'));
   }
-  
-  User.findById(params.userId, function (err, user) {
+
+  User.findById(params.userId, function(err, user) {
     if (err) {
       return cb(err);
     }
@@ -20,7 +20,7 @@ module.exports = function (params, cb) {
     if (!user) {
       return cb(new Error('User not found'));
     }
-    
+
     cb(null, user.trusts(params.clientId));
   });
 };

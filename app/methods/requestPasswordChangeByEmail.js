@@ -7,7 +7,7 @@ var Mailer = require('../clients/mailer');
 var ONE_HOUR = 3600000;
 
 function sendPasswordResetEmail(user, cb) {
-  crypto.randomBytes(20, function (err, buffer) {
+  crypto.randomBytes(20, function(err, buffer) {
     if (err) {
       return cb(err, null);
     }
@@ -17,7 +17,7 @@ function sendPasswordResetEmail(user, cb) {
     user.resetPasswordToken = token;
     user.resetPasswordExpires = Date.now() + ONE_HOUR;
 
-    user.save(function (err, user) {
+    user.save(function(err, user) {
       if (err) {
         return cb(err, null);
       }
@@ -34,14 +34,14 @@ function sendPasswordResetEmail(user, cb) {
   });
 }
 
-module.exports = function (email, cb) {
+module.exports = function(email, cb) {
   if (!email) {
     return cb(new TypeError('No email provided to reset password'), null);
   }
 
   User.findOne({
     email: email.toLowerCase()
-  }, function (err, user) {
+  }, function(err, user) {
     if (err) {
       return cb(err, null);
     }

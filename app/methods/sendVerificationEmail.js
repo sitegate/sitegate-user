@@ -10,13 +10,13 @@ function sendVerificationEmail(userId, cb) {
   if (!userId) {
     return cb(new TypeError('userId required'), null);
   }
-  
-  User.findById(userId, function (err, user) {
+
+  User.findById(userId, function(err, user) {
     if (err) {
       return cb(err, null);
     }
 
-    crypto.randomBytes(20, function (err, buffer) {
+    crypto.randomBytes(20, function(err, buffer) {
       if (err) {
         return cb(err, null);
       }
@@ -28,7 +28,7 @@ function sendVerificationEmail(userId, cb) {
 
       user.emailVerificationTokenExpires = Date.now() + ONE_DAY;
 
-      user.save(function (err, user) {
+      user.save(function(err, user) {
         if (err) {
           return cb(err, null);
         }
@@ -41,7 +41,7 @@ function sendVerificationEmail(userId, cb) {
             token: user.emailVerificationToken
           }
         });
-        
+
         return cb(null, null);
       });
     });

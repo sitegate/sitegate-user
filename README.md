@@ -3,12 +3,13 @@
 [![Dependency Status](https://david-dm.org/sitegate/sitegate-user.svg)](https://david-dm.org/sitegate/sitegate-user)
 [![Build Status](https://travis-ci.org/sitegate/sitegate-user.svg)](https://travis-ci.org/sitegate/sitegate-user)
 
+
 ## Methods
 
-###getById(id, callback)
+### getById(id, callback)
 **Usage**
 ```js
-User.getById('550b42003376b4ec12fbbcb1', function (err, user) {
+User.getById('550b42003376b4ec12fbbcb1', function(err, user) {
   console.log(user.name);
 });
 ```
@@ -48,7 +49,7 @@ User.getById('550b42003376b4ec12fbbcb1', function (err, user) {
 
 
 
-###update(id, updatedFields, [callback])
+### update(id, updatedFields, [callback])
 **Usage**
 ```js
 User.update('550b42003376b4ec12fbbcb1', {
@@ -66,7 +67,6 @@ User.update('550b42003376b4ec12fbbcb1', {
 | cb | function(err, user) | A callback function to receive the updated user. |
 
 
-License
-========
+# License
 
 The MIT License (MIT)

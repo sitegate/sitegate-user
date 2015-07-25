@@ -6,10 +6,14 @@
   "scripts": {
     "start": "node app.js"
   },
-  "author": "Zoltan Kochan",
+  "author": {
+    "name": "Zoltan Kochan",
+    "email": "zoltan.kochan@gmail.com",
+    "url": "http://kochan.io"
+  },
   "repository": {
     "type": "git",
-    "url": "git://github.com/zkochan/sitegate-user.git"
+    "url": "git://github.com/sitegate/sitegate-user.git"
   },
   "license": "MIT",
   "dependencies": {
@@ -18,5 +22,9 @@
     "convict": "^0.6.1",
     "crypto": "0.0.3",
     "mongoose": "~3.8.25"
-  }
+  },
+  "appDependencies": [
+    "sitegate-client",
+    "sitegate-mailer"
+  ]
 }

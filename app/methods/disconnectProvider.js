@@ -2,18 +2,18 @@
 
 var User = require('../../models/user');
 
-module.exports = function (params, cb) {
+module.exports = function(params, cb) {
   params = params || {};
-  
+
   if (!params.userId)  {
     return cb(new Error('userId is missing'));
   }
-  
+
   if (!params.strategy)  {
     return cb(new Error('strategy is missing'));
   }
-  
-  User.findById(params.userId, function (err, user) {
+
+  User.findById(params.userId, function(err, user) {
     if (err) {
       return cb(err);
     }
@@ -35,11 +35,11 @@ module.exports = function (params, cb) {
 
     user.markModified('additionalProvidersData');
 
-    user.save(function (err) {
+    user.save(function(err) {
       if (err) {
         return cb(err);
       }
-      
+
       return cb(null);
     });
   });

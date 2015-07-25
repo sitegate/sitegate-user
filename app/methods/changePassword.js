@@ -4,12 +4,12 @@ var User = require('../../models/user');
 var ServerError = require('bograch').ServerError;
 
 function saveNewPassword(user, params, cb) {
-  user.setPassword(params.newPassword, function (err, user) {
+  user.setPassword(params.newPassword, function(err, user) {
     if (err) {
       return cb(err);
     }
 
-    user.save(function (err) {
+    user.save(function(err) {
       if (err) {
         return cb(err);
       }
@@ -19,7 +19,7 @@ function saveNewPassword(user, params, cb) {
   });
 }
 
-module.exports = function (params, cb) {
+module.exports = function(params, cb) {
   params = params || {};
 
   if (!params.userId) {
@@ -30,7 +30,7 @@ module.exports = function (params, cb) {
     return cb(new ServerError('argumentNull', 'newPassword is missing'));
   }
 
-  User.findById(params.userId, function (err, user) {
+  User.findById(params.userId, function(err, user) {
     if (err) {
       return cb(err);
     }
@@ -38,11 +38,11 @@ module.exports = function (params, cb) {
     if (!user) {
       return cb(new ServerError('userNotFound', 'User not found'));
     }
-    
+
     if (params.forceNewPassword || typeof user.hash === 'undefined') {
       return saveNewPassword(user, params, cb);
     }
-    user.authenticate(params.currentPassword, function (err, user) {
+    user.authenticate(params.currentPassword, function(err, user) {
       if (err || !user) {
         return cb(err, user);
       }

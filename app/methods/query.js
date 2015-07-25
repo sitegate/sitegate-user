@@ -2,7 +2,7 @@
 
 var User = require('../../models/user');
 
-module.exports = function (params, cb) {
+module.exports = function(params, cb) {
   params = params || {};
   params.fields = params.fields || [];
 
