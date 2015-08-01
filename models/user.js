@@ -6,7 +6,6 @@
  */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var ServerError = require('bograch').ServerError;
 var crypto = require('crypto');
 
 /* Constants */
@@ -144,7 +143,7 @@ UserSchema.pre('save', function(next) {
 
 UserSchema.methods.setPassword = function(password, cb) {
   if (!password) {
-    return cb(new ServerError('missingPassword', 'Password argument not set!'));
+    return cb(new Error('Password argument not set!'));
   }
 
   var self = this;
@@ -178,11 +177,11 @@ UserSchema.methods.authenticate = function(password, cb) {
   if (Date.now() - this.last < calculatedInterval) {
     this.last = Date.now();
     this.save();
-    return cb(new ServerError('soonLoginAttempt', 'Login attempted too soon after previous attempt'), null);
+    return cb(new Error('Login attempted too soon after previous attempt'), null);
   }
 
   if (!this.salt) {
-    return cb(new ServerError('noSaltStored', 'Authentication not possible. No salt value stored in mongodb collection!'), false);
+    return cb(new Error('Authentication not possible. No salt value stored in mongodb collection!'), false);
   }
 
   crypto.pbkdf2(password, this.salt, ITERATIONS, KEYLEN, function(err, hashRaw) {
@@ -204,7 +203,7 @@ UserSchema.methods.authenticate = function(password, cb) {
     self.last = Date.now();
     self.attempts = self.attempts + 1;
     self.save();
-    return cb(new ServerError('incorrectPassword', 'Incorrect password'), null);
+    return cb(new Error('Incorrect password'), null);
   });
 };
 

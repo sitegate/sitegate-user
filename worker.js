@@ -1,15 +1,12 @@
+'use strict';
+
 var config = require('./config');
-var bo = require('bograch');
-var amqpTransport = require('bograch-amqp');
+var Server = require('uva-amqp').Server;
 
-bo.use(amqpTransport);
-
-var server = bo.server('amqp', {
-  name: 'user',
-  amqpURL: config.get('amqpUrl')
+var server = new Server({
+  channel: 'user',
+  url: config.get('amqpUrl')
 });
 
 var routes = require('./app/routes');
 routes(server);
-
-server.start();

@@ -2,7 +2,6 @@
 
 var User = require('../../models/user');
 var sendVerificationEmail = require('./sendVerificationEmail');
-var ServerError = require('bograch').ServerError;
 
 module.exports = function(fields, cb) {
   if (!fields.username) {
@@ -23,7 +22,7 @@ module.exports = function(fields, cb) {
     }
 
     if (existingUser) {
-      return cb(new ServerError('usernameExists', 'username already Exists'));
+      return cb(new Error('username already Exists'));
     }
 
     User.findOne({
@@ -34,7 +33,7 @@ module.exports = function(fields, cb) {
       }
 
       if (existingUser) {
-        return cb(new ServerError('emailExists', 'email already Exists'));
+        return cb(new Error('email already Exists'));
       }
 
       user.setPassword(fields.password, function(err, user) {

@@ -1,7 +1,6 @@
 'use strict';
 
 var User = require('../../models/user');
-var ServerError = require('bograch').ServerError;
 
 function saveNewPassword(user, params, cb) {
   user.setPassword(params.newPassword, function(err, user) {
@@ -23,11 +22,11 @@ module.exports = function(params, cb) {
   params = params || {};
 
   if (!params.userId) {
-    return cb(new ServerError('argumentNull', 'userId is missing'));
+    return cb(new Error('userId is missing'));
   }
 
   if (!params.newPassword) {
-    return cb(new ServerError('argumentNull', 'newPassword is missing'));
+    return cb(new Error('newPassword is missing'));
   }
 
   User.findById(params.userId, function(err, user) {
@@ -36,7 +35,7 @@ module.exports = function(params, cb) {
     }
 
     if (!user) {
-      return cb(new ServerError('userNotFound', 'User not found'));
+      return cb(new Error('User not found'));
     }
 
     if (params.forceNewPassword || typeof user.hash === 'undefined') {

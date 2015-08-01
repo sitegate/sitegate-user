@@ -1,15 +1,13 @@
 'use strict';
 
-var bo = require('bograch');
+var Client = require('uva-amqp').Client;
 var config = require('../../config');
 
-var client = bo.client('amqp', {
-  name: 'client',
-  amqpURL: config.get('amqpUrl')
+var client = new Client({
+  channel: 'client',
+  url: config.get('amqpUrl')
 });
 
 client.register('query');
-
-client.connect();
 
 module.exports = client.methods;

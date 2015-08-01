@@ -2,7 +2,6 @@
 
 var User = require('../../models/user');
 var sendVerificationEmail = require('./sendVerificationEmail');
-var ServerError = require('bograch').ServerError;
 
 module.exports = function update(id, params, cb) {
   User.findById(id, function(err, user) {
@@ -11,7 +10,7 @@ module.exports = function update(id, params, cb) {
     }
 
     if (!user) {
-      return cb(new ServerError('userNotFound'));
+      return cb(new Error('userNotFound'));
     }
 
     user.username = params.username || user.username;
