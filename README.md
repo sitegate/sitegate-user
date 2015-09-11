@@ -1,7 +1,7 @@
 # sitegate-user
 
-[![Dependency Status](https://david-dm.org/sitegate/sitegate-user.svg)](https://david-dm.org/sitegate/sitegate-user)
-[![Build Status](https://travis-ci.org/sitegate/sitegate-user.svg)](https://travis-ci.org/sitegate/sitegate-user)
+[![Dependency Status](https://david-dm.org/sitegate/user.svg)](https://david-dm.org/sitegate/user)
+[![Build Status](https://travis-ci.org/sitegate/user.svg)](https://travis-ci.org/sitegate/user)
 
 
 ## Methods

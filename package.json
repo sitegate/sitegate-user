@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/sitegate/sitegate-user.git"
+    "url": "git://github.com/sitegate/user.git"
   },
   "license": "MIT",
   "dependencies": {
