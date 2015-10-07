@@ -1,7 +1,5 @@
 'use strict';
 
-var User = require('../../models/user');
-
 /**
  * Returns a user by its Username
  *
@@ -10,18 +8,20 @@ var User = require('../../models/user');
  * be returned.
  * @param {function} [cb] - A callback function that will consume the results.
  */
-module.exports = function() {
-  var username = arguments[0];
-  var options, cb;
-  if (typeof arguments[1] === 'function') {
-    cb = arguments[1];
-  } else {
-    options = arguments[1];
-    cb = arguments[2];
-  }
+module.exports = function(ms) {
+  return function() {
+    var username = arguments[0];
+    var options, cb;
+    if (typeof arguments[1] === 'function') {
+      cb = arguments[1];
+    } else {
+      options = arguments[1];
+      cb = arguments[2];
+    }
 
-  options = options || {};
-  options.fields = options.fields || [];
+    options = options || {};
+    options.fields = options.fields || [];
 
-  User.findOne({ username: username }, options.fields.join(' '), cb);
+    ms.models.User.findOne({ username: username }, options.fields.join(' '), cb);
+  };
 };

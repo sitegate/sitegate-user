@@ -1,51 +1,52 @@
 'use strict';
 
 var crypto = require('crypto');
-var Mailer = require('../clients/mailer');
-var User = require('../../models/user');
 
 var ONE_DAY = 1000 * 60 * 60 * 24;
 
-function sendVerificationEmail(userId, cb) {
-  if (!userId) {
-    return cb(new TypeError('userId required'), null);
-  }
+module.exports = function(ms) {
+  var User = ms.models.User;
+  var mailer = ms.clients.mailer;
 
-  User.findById(userId, function(err, user) {
-    if (err) {
-      return cb(err, null);
+  return function sendVerificationEmail(userId, cb) {
+    if (!userId) {
+      return cb(new TypeError('userId required'), null);
     }
 
-    crypto.randomBytes(20, function(err, buffer) {
+    User.findById(userId, function(err, user) {
       if (err) {
         return cb(err, null);
       }
 
-      var token = buffer.toString('hex');
-
-      user.emailVerified = false;
-      user.emailVerificationToken = token;
-
-      user.emailVerificationTokenExpires = Date.now() + ONE_DAY;
-
-      user.save(function(err, user) {
+      crypto.randomBytes(20, function(err, buffer) {
         if (err) {
           return cb(err, null);
         }
 
-        Mailer.send({
-          templateName: 'email-verification-email',
-          to: user.email,
-          locals: {
-            username: user.username,
-            token: user.emailVerificationToken
-          }
-        });
+        var token = buffer.toString('hex');
 
-        return cb(null, null);
+        user.emailVerified = false;
+        user.emailVerificationToken = token;
+
+        user.emailVerificationTokenExpires = Date.now() + ONE_DAY;
+
+        user.save(function(err, user) {
+          if (err) {
+            return cb(err, null);
+          }
+
+          mailer.send({
+            templateName: 'email-verification-email',
+            to: user.email,
+            locals: {
+              username: user.username,
+              token: user.emailVerificationToken
+            }
+          }, function() {});
+
+          return cb(null, null);
+        });
       });
     });
-  });
-}
-
-module.exports = sendVerificationEmail;
+  };
+};

@@ -1,56 +1,57 @@
 'use strict';
 
-var User = require('../../models/user');
-var Mailer = require('../clients/mailer');
+module.exports = function(ms) {
+  var User = ms.models.User;
+  var mailer = ms.clients.mailer;
 
-module.exports = function(params, cb) {
-  params = params || {};
+  return function(params, cb) {
+    params = params || {};
 
-  if (!params.token) {
-    return cb(new TypeError('token parameter is missing'));
-  }
-  if (!params.newPassword) {
-    return cb(new TypeError('newPassword parameter is missing'));
-  }
-
-  User.findOne({
-    resetPasswordToken: params.token,
-    resetPasswordExpires: {
-      $gt: Date.now()
+    if (!params.token) {
+      return cb(new TypeError('token parameter is missing'));
     }
-  }, function(err, user) {
-    if (err) {
-      return cb(err, null);
+    if (!params.newPassword) {
+      return cb(new TypeError('newPassword parameter is missing'));
     }
 
-    if (!user) {
-      return cb(new Error('Invalid reset token'), null);
-    }
-
-
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
-
-    user.setPassword(params.newPassword, function(err, user) {
+    User.findOne({
+      resetPasswordToken: params.token,
+      resetPasswordExpires: {
+        $gt: Date.now()
+      }
+    }, function(err, user) {
       if (err) {
         return cb(err, null);
       }
 
-      user.save(function(err) {
+      if (!user) {
+        return cb(new Error('Invalid reset token'), null);
+      }
+
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+
+      user.setPassword(params.newPassword, function(err, user) {
         if (err) {
           return cb(err, null);
         }
 
-        Mailer.send({
-          templateName: 'reset-password-confirm-email',
-          to: user.email,
-          locals: {
-            username: user.username
+        user.save(function(err) {
+          if (err) {
+            return cb(err, null);
           }
-        });
 
-        return cb(null, user);
+          mailer.send({
+            templateName: 'reset-password-confirm-email',
+            to: user.email,
+            locals: {
+              username: user.username
+            }
+          }, function() {});
+
+          return cb(null, user);
+        });
       });
     });
-  });
+  };
 };

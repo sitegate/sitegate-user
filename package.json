@@ -2,10 +2,7 @@
   "name": "sitegate-user",
   "version": "0.0.0",
   "description": "User microservice for SiteGate",
-  "main": "app.js",
-  "scripts": {
-    "start": "node app.js"
-  },
+  "main": "./lib/index.js",
   "author": {
     "name": "Zoltan Kochan",
     "email": "zoltan.kochan@gmail.com",
@@ -16,14 +13,11 @@
     "url": "git://github.com/sitegate/user.git"
   },
   "license": "MIT",
-  "dependencies": {
-    "convict": "^1.0.1",
-    "crypto": "0.0.3",
-    "mongoose": "^4.1.6",
-    "uva-amqp": "^0.4.0"
+  "publishConfig": {
+    "registry": "http://registry.npmjs.org"
   },
-  "appDependencies": [
-    "sitegate-client",
-    "sitegate-mailer"
-  ]
+  "dependencies": {
+    "crypto": "0.0.3",
+    "mongoose": "^4.1.6"
+  }
 }

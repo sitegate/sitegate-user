@@ -1,35 +1,37 @@
 'use strict';
 
-var User = require('../../models/user');
+module.exports = function(ms) {
+  var User = ms.models.User;
 
-module.exports = function(token, cb) {
-  if (!token) {
-    return cb(new Error('token is missing'));
-  }
-
-  User.findOne({
-    emailVerificationToken: token,
-    emailVerificationTokenExpires: {
-      $gt: Date.now()
-    }
-  }, function(err, user) {
-    if (err) {
-      return cb(err);
+  return function(token, cb) {
+    if (!token) {
+      return cb(new Error('token is missing'));
     }
 
-    if (!user) {
-      return cb(new Error('user not found'));
-    }
-
-    user.emailVerified = true;
-    user.emailVerificationToken = null;
-
-    user.save(function(err) {
+    User.findOne({
+      emailVerificationToken: token,
+      emailVerificationTokenExpires: {
+        $gt: Date.now()
+      }
+    }, function(err, user) {
       if (err) {
         return cb(err);
       }
 
-      return cb(null, user);
+      if (!user) {
+        return cb(new Error('user not found'));
+      }
+
+      user.emailVerified = true;
+      user.emailVerificationToken = null;
+
+      user.save(function(err) {
+        if (err) {
+          return cb(err);
+        }
+
+        return cb(null, user);
+      });
     });
-  });
+  };
 };

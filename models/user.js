@@ -213,4 +213,6 @@ UserSchema.set('toJSON', {
   }
 });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = function(connection) {
+  return connection.model('User', UserSchema);
+};

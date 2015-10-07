@@ -1,7 +1,5 @@
 'use strict';
 
-var User = require('../../models/user');
-
 function saveNewPassword(user, params, cb) {
   user.setPassword(params.newPassword, function(err, user) {
     if (err) {
@@ -18,35 +16,39 @@ function saveNewPassword(user, params, cb) {
   });
 }
 
-module.exports = function(params, cb) {
-  params = params || {};
+module.exports = function(ms) {
+  var User = ms.models.User;
 
-  if (!params.userId) {
-    return cb(new Error('userId is missing'));
-  }
+  return function(params, cb) {
+    params = params || {};
 
-  if (!params.newPassword) {
-    return cb(new Error('newPassword is missing'));
-  }
-
-  User.findById(params.userId, function(err, user) {
-    if (err) {
-      return cb(err);
+    if (!params.userId) {
+      return cb(new Error('userId is missing'));
     }
 
-    if (!user) {
-      return cb(new Error('User not found'));
+    if (!params.newPassword) {
+      return cb(new Error('newPassword is missing'));
     }
 
-    if (params.forceNewPassword || typeof user.hash === 'undefined') {
-      return saveNewPassword(user, params, cb);
-    }
-    user.authenticate(params.currentPassword, function(err, user) {
-      if (err || !user) {
-        return cb(err, user);
+    User.findById(params.userId, function(err, user) {
+      if (err) {
+        return cb(err);
       }
 
-      return saveNewPassword(user, params, cb);
+      if (!user) {
+        return cb(new Error('User not found'));
+      }
+
+      if (params.forceNewPassword || typeof user.hash === 'undefined') {
+        return saveNewPassword(user, params, cb);
+      }
+      user.authenticate(params.currentPassword, function(err, user) {
+        if (err || !user) {
+          return cb(err, user);
+        }
+
+        return saveNewPassword(user, params, cb);
+      });
     });
-  });
+  };
 };
