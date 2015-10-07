@@ -4,6 +4,7 @@ var User = require('../../models/user');
 
 /**
  * Returns a user by its ID
+ *
  * @param {string} id - The unique ID of the User.
  * @param {Object} [options] - Options that can define what data should
  * be returned.

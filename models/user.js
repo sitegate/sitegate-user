@@ -1,4 +1,3 @@
-/* jshint node:true */
 'use strict';
 
 /**
@@ -131,8 +130,6 @@ UserSchema.statics.findUniqueUsername = function(username, suffix, callback) {
 UserSchema.methods.trusts = function(clientId) {
   return this.trustedClients && this.trustedClients.indexOf(clientId) !== -1;
 };
-
-
 
 UserSchema.pre('save', function(next) {
   this.username = this.username.toLowerCase();
