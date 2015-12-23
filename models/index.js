@@ -1,15 +1,14 @@
 'use strict';
 
-var mongoose = require('mongoose');
+const debug = require('debug')('sitegate:user');
+const mongoose = require('mongoose');
 
 module.exports = function(mongoURI) {
-  var connection = mongoose.createConnection(mongoURI);
+  let connection = mongoose.createConnection(mongoURI);
 
-  connection.on('connected', function() {
-    console.log('Mongoose connected in User microservice');
-  });
+  connection.on('connected', () => debug('Mongoose connected in User microservice'));
 
-  var models = {
+  let models = {
     User: require('./user')(connection)
   };
 
