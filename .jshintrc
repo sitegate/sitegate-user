@@ -18,8 +18,10 @@
   "quotmark": "single",
   "maxlen": 80,
   "trailing": true,
-  "curly": true,
+  "curly": false,
   "globals": {
+    "jasmine": true,
+    "ApplicationConfiguration": true
   },
   "predef": [
     "define",
@@ -32,6 +34,7 @@
     "after",
     "afterEach",
     "it",
+    "inject",
     "expect"
    ]
 }
