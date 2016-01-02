@@ -10,8 +10,8 @@
  */
 module.exports = function(ms) {
   return function() {
-    var id = arguments[0];
-    var options, cb;
+    let id = arguments[0];
+    let options, cb;
     if (typeof arguments[1] === 'function') {
       cb = arguments[1];
     } else {

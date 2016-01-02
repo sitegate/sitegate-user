@@ -3,49 +3,49 @@
 /**
  * Module dependencies.
  */
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var crypto = require('crypto');
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+const crypto = require('crypto');
 
 /* Constants */
-var SALTLEN = 32;
-var ITERATIONS = 25000;
-var KEYLEN = 512;
-var INTERVAL = 100;
-var ENCODING = 'hex';
-var MAX_INTERVAL = 300000;
+const SALTLEN = 32;
+const ITERATIONS = 25000;
+const KEYLEN = 512;
+const INTERVAL = 100;
+const ENCODING = 'hex';
+const MAX_INTERVAL = 300000;
 
 /**
  * A Validation function for local strategy properties
  */
-var validateLocalStrategyProperty = function(property) {
-  return ((this.provider !== 'local' && !this.updated) || property.length);
-};
+function validateLocalStrategyProperty(property) {
+  return (this.provider !== 'local' && !this.updated) || property.length;
+}
 
 /**
  * User Schema
  */
-var UserSchema = new Schema({
+let UserSchema = new Schema({
   firstName: {
     type: String,
     trim: true,
-    default: ''
+    default: '',
   },
   lastName: {
     type: String,
     trim: true,
-    default: ''
+    default: '',
   },
   displayName: {
     type: String,
-    trim: true
+    trim: true,
   },
   email: {
     type: String,
     trim: true,
     default: '',
     validate: [validateLocalStrategyProperty, 'Please fill in your email'],
-    match: [/.+\@.+\..+/, 'Please fill a valid email address']
+    match: [/.+\@.+\..+/, 'Please fill a valid email address'],
   },
   username: {
     type: String,
@@ -53,78 +53,75 @@ var UserSchema = new Schema({
     required: 'Please fill in a username',
     trim: true,
     min: 5,
-    max: 20
+    max: 20,
   },
   provider: {
     type: String,
-    required: 'Provider is required'
+    required: 'Provider is required',
   },
   providerData: {},
   additionalProvidersData: {},
   role: {
     type: String,
     enum: ['user', 'admin'],
-    default: 'user'
+    default: 'user',
   },
   updated: {
-    type: Date
+    type: Date,
   },
   created: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   /* Limit attempts */
   last: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   attempts: {
     type: Number,
-    default: 0
+    default: 0,
   },
   /* Password */
   hash: String,
   salt: String,
   /* For reset password */
   resetPasswordToken: {
-    type: String
+    type: String,
   },
   resetPasswordExpires: {
-    type: Date
+    type: Date,
   },
   // For email verification
   emailVerified: {
     type: Boolean,
-    default: false
+    default: false,
   },
   emailVerificationToken: String,
   emailVerificationTokenExpires: Date,
-  trustedClients: [{
-    type: mongoose.Schema.ObjectId,
-    ref: 'Client'
-  }]
+  trustedClients: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Client',
+    },
+  ],
 });
 
 /**
  * Find possible not used username
  */
-UserSchema.statics.findUniqueUsername = function(username, suffix, callback) {
-  var _this = this;
-  var possibleUsername = username + (suffix || '');
+UserSchema.statics.findUniqueUsername = function(username, suffix, cb) {
+  let possibleUsername = username + (suffix || '');
 
-  _this.findOne({
-    username: possibleUsername
+  this.findOne({
+    username: possibleUsername,
   }, function(err, user) {
-    if (!err) {
-      if (!user) {
-        callback(possibleUsername);
-      } else {
-        return _this.findUniqueUsername(username, (suffix || 0) + 1, callback);
-      }
-    } else {
-      callback(null);
-    }
-  });
+    if (!err) return cb(null);
+
+    if (!user) return cb(possibleUsername);
+
+    return this.findUniqueUsername(username, (suffix || 0) + 1, cb);
+  }.bind(this));
 };
 
 UserSchema.methods.trusts = function(clientId) {
@@ -143,33 +140,29 @@ UserSchema.methods.setPassword = function(password, cb) {
     return cb(new Error('Password argument not set!'));
   }
 
-  var self = this;
-
   crypto.randomBytes(SALTLEN, function(err, buf) {
     if (err) {
       return cb(err);
     }
 
-    var salt = buf.toString(ENCODING);
+    let salt = buf.toString(ENCODING);
 
     crypto.pbkdf2(password, salt, ITERATIONS, KEYLEN, function(err, hashRaw) {
       if (err) {
         return cb(err);
       }
 
-      self.hash = new Buffer(hashRaw, 'binary').toString(ENCODING);
-      self.salt = salt;
+      this.hash = new Buffer(hashRaw, 'binary').toString(ENCODING);
+      this.salt = salt;
 
-      cb(null, self);
-    });
+      cb(null, this);
+    }.bind(this));
   });
 };
 
 UserSchema.methods.authenticate = function(password, cb) {
-  var self = this;
-
-  var attemptsInterval = Math.pow(INTERVAL, Math.log(this.attempts + 1));
-  var calculatedInterval = (attemptsInterval < MAX_INTERVAL) ? attemptsInterval : MAX_INTERVAL;
+  let attemptsInterval = Math.pow(INTERVAL, Math.log(this.attempts + 1));
+  let calculatedInterval = Math.min(attemptsInterval, MAX_INTERVAL);
 
   if (Date.now() - this.last < calculatedInterval) {
     this.last = Date.now();
@@ -186,31 +179,31 @@ UserSchema.methods.authenticate = function(password, cb) {
       return cb(err);
     }
 
-    var hash = new Buffer(hashRaw, 'binary').toString(ENCODING);
+    let hash = new Buffer(hashRaw, 'binary').toString(ENCODING);
 
-    if (hash === self.hash) {
+    if (hash === this.hash) {
 
-      self.last = Date.now();
-      self.attempts = 0;
-      self.save();
+      this.last = Date.now();
+      this.attempts = 0;
+      this.save();
 
-      return cb(null, self);
+      return cb(null, this);
     }
 
-    self.last = Date.now();
-    self.attempts = self.attempts + 1;
-    self.save();
+    this.last = Date.now();
+    this.attempts++;
+    this.save();
     return cb(new Error('Incorrect password'), null);
-  });
+  }.bind(this));
 };
 
 UserSchema.set('toJSON', {
-  transform: function(doc, ret, options) {
+  transform(doc, ret, options) {
     ret.id = ret._id;
     delete ret._id;
     delete ret.__v;
     return ret;
-  }
+  },
 });
 
 module.exports = function(connection) {
