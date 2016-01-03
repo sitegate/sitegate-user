@@ -1,5 +1,7 @@
 'use strict';
 
+const joi = require('joi');
+
 function createQuery(providerUserProfile) {
   // Define a search query fields
   let searchMainProviderIdentifierField =
@@ -36,51 +38,38 @@ function createPossibleUsername(providerUserProfile) {
   return '';
 }
 
-module.exports = function(ms) {
-  let User = ms.models.User;
+module.exports = function(service, opts, next) {
+  let User = service.models.User;
 
-  return function(params, cb) {
-    if (!params)
-      return cb(new Error('params is required'));
+  function createUser(providerUserProfile, cb) {
+    let searchQuery = createQuery(providerUserProfile);
 
-    if (!params.providerUserProfile)
-      return cb(new Error('params.providerUserProfile is required'));
+    User.findOne(searchQuery, function(err, user) {
+      if (err) return cb(err);
 
-    if (!params.providerUserProfile.providerIdentifierField)
-      return cb(new Error('params.providerUserProfile.providerIdentifierField is required'));
+      if (user) return cb(err, user);
 
-    let providerUserProfile = params.providerUserProfile;
-    let loggedUser = params.loggedUser;
+      let possibleUsername = createPossibleUsername(providerUserProfile);
 
-    if (!loggedUser) {
-      let searchQuery = createQuery(providerUserProfile);
-
-      User.findOne(searchQuery, function(err, user) {
-        if (err) return cb(err);
-
-        if (user) return cb(err, user);
-
-        let possibleUsername = createPossibleUsername(providerUserProfile);
-
-        return User.findUniqueUsername(possibleUsername, null, function(availableUsername) {
-          let user = new User({
-            firstName: providerUserProfile.firstName,
-            lastName: providerUserProfile.lastName,
-            username: availableUsername,
-            displayName: providerUserProfile.displayName,
-            email: providerUserProfile.email,
-            emailVerified: true,
-            provider: providerUserProfile.provider,
-            providerData: providerUserProfile.providerData,
-          });
-
-          // And save the user
-          user.save(err => cb(err, user));
+      return User.findUniqueUsername(possibleUsername, null, function(availableUsername) {
+        let user = new User({
+          firstName: providerUserProfile.firstName,
+          lastName: providerUserProfile.lastName,
+          username: availableUsername,
+          displayName: providerUserProfile.displayName,
+          email: providerUserProfile.email,
+          emailVerified: true,
+          provider: providerUserProfile.provider,
+          providerData: providerUserProfile.providerData,
         });
-      });
 
-      return;
-    }
+        // And save the user
+        user.save(err => cb(err, user));
+      });
+    });
+  }
+
+  function extendUser(loggedUser, providerUserProfile, cb) {
     // User is already logged in, join the provider data to the existing user
     User.findById(loggedUser.id, function(err, user) {
       if (err)
@@ -110,5 +99,34 @@ module.exports = function(ms) {
       // And save the user
       user.save(err => cb(err, user/*, '/settings/accounts'*/));
     });
-  };
+  }
+
+  service.method({
+    name: 'saveOAuthUserProfile',
+    config: {
+      validate: joi.object().keys({
+        providerUserProfile: joi.object()
+          .keys({
+            providerIdentifierField: joi.string().required(),
+            provider: joi.string().required(),
+            providerData: joi.object().required(),
+          })
+          .required(),
+        loggedUser: joi.object().keys({
+          id: joi.string().required(),
+        }),
+      }),
+    },
+    handler(params, cb) {
+      let providerUserProfile = params.providerUserProfile;
+      let loggedUser = params.loggedUser;
+
+      if (loggedUser)
+        return extendUser(loggedUser, providerUserProfile, cb);
+
+      return createUser(providerUserProfile, cb);
+    },
+  });
+
+  next();
 };

@@ -2,6 +2,7 @@
   "node": true,
   "browser": true,
   "esnext": true,
+  "expr": true,
   "bitwise": false,
   "camelcase": true,
   "eqeqeq": true,
@@ -20,11 +21,8 @@
   "trailing": true,
   "curly": false,
   "globals": {
-    "jasmine": true,
-    "ApplicationConfiguration": true
   },
   "predef": [
-    "define",
     "require",
     "exports",
     "module",
@@ -33,8 +31,6 @@
     "beforeEach",
     "after",
     "afterEach",
-    "it",
-    "inject",
-    "expect"
+    "it"
    ]
 }
