@@ -5,10 +5,9 @@ const registerPlugin = require('register-plugin');
 function Service() {
 }
 
-Service.prototype.connection = function() {
-
+Service.prototype.connection = function(connOpts) {
+  this._connOpts = connOpts;
 };
 
-Service.prototype.register = function() {
-
+Service.prototype.register = function(plugins, cb) {
 };
