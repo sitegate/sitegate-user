@@ -3,7 +3,7 @@
 const joi = require('joi')
 
 module.exports = function(ms, opts, next) {
-  let User = ms.models.User
+  let User = ms.plugins.models.User
 
   ms.method({
     name: 'validateResetToken',

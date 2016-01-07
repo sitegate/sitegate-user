@@ -13,7 +13,7 @@ module.exports = function(ms, opts, next) {
     handler(params, cb) {
       params.fields = params.fields || [];
 
-      ms.models.User
+      ms.plugins.models.User
         .find({}, params.fields.join(' '))
         .limit(params.count)
         .exec(cb);

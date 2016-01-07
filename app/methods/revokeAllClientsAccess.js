@@ -3,7 +3,7 @@
 const joi = require('joi')
 
 module.exports = function(ms, opts, next) {
-  const User = ms.models.User
+  const User = ms.plugins.models.User
 
   ms.method({
     name: 'revokeAllClientsAccess',

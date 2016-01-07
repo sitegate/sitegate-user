@@ -14,7 +14,7 @@ module.exports = function(ms, opts, next) {
       let options = params.options || {}
       options.fields = options.fields || []
 
-      ms.models.User.findById(params.id, options.fields.join(' '), cb)
+      ms.plugins.models.User.findById(params.id, options.fields.join(' '), cb)
     },
   });
 

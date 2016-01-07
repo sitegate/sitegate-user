@@ -6,8 +6,8 @@ const crypto = require('crypto')
 const ONE_HOUR = 3600000
 
 module.exports = function(ms, opts, next) {
-  let User = ms.models.User
-  let mailer = ms.clients.mailer
+  let User = ms.plugins.models.User
+  let mailer = ms.plugins.mailer
 
   function sendPasswordResetEmail(user, cb) {
     crypto.randomBytes(20, function(err, buffer) {

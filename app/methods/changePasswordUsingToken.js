@@ -3,8 +3,8 @@
 const joi = require('joi')
 
 module.exports = function(ms, opts, next) {
-  let User = ms.models.User
-  let mailer = ms.clients.mailer
+  let User = ms.plugins.models.User
+  let mailer = ms.plugins.mailer
 
   ms.method({
     name: 'changePasswordUsingToken',

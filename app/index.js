@@ -6,10 +6,10 @@ module.exports = function(opts) {
   opts = opts || {};
 
   if (!opts.models) {
-    throw new Error('`opts.models` is required');
+    throw new Error('`opts.plugins.models` is required');
   }
   if (!opts.models.User) {
-    throw new Error('`opts.models.User` is required');
+    throw new Error('`opts.plugins.models.User` is required');
   }
   if (!opts.clients) {
     throw new Error('`opts.clients` is required');

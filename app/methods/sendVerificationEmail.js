@@ -6,8 +6,8 @@ const crypto = require('crypto')
 const ONE_DAY = 1000 * 60 * 60 * 24
 
 module.exports = function(ms, opts, next) {
-  let User = ms.models.User
-  let mailer = ms.clients.mailer
+  let User = ms.plugins.models.User
+  let mailer = ms.plugins.mailer
 
   ms.method({
     name: 'sendVerificationEmail',
@@ -60,4 +60,5 @@ module.exports = function(ms, opts, next) {
 
 module.exports.attributes = {
   name: 'send-verification-email',
+  dependencies: ['mailer'],
 }

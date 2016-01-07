@@ -1,18 +1,31 @@
 'use strict'
 
-const jimbo = require('jimbo')
+const jimbo = require('../../jimbo')
 
 let server = new jimbo.Server()
 
 server.connection({
-  url: '',
+  channel: 'sitegate-user',
+  url: 'amqp://guest:guest@localhost:5672',
 })
 
 server.register([
   {
     register: require('./models'),
     options: {
-      mongoURI: '',
+      mongoURI: 'mongodb://localhost:27017/sitegate-user',
+    },
+  },
+  {
+    register: require('./clients/mailer'),
+    options: {
+      amqpURL: 'amqp://guest:guest@localhost:5672',
+    },
+  },
+  {
+    register: require('./clients/client'),
+    options: {
+      amqpURL: 'amqp://guest:guest@localhost:5672',
     },
   },
   {

@@ -19,7 +19,7 @@ function saveNewPassword(user, params, cb) {
 }
 
 module.exports = function(ms, opts, next) {
-  let User = ms.models.User
+  let User = ms.plugins.models.User
 
   ms.method({
     name: 'changePassword',

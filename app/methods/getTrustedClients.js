@@ -11,7 +11,7 @@ module.exports = function(ms, opts, next) {
       }),
     },
     handler(params, cb) {
-      ms.models.User.findById(params.userId, function(err, user) {
+      ms.plugins.models.User.findById(params.userId, function(err, user) {
         if (err) {
           return cb(err)
         }
@@ -24,7 +24,7 @@ module.exports = function(ms, opts, next) {
           return cb(null, [])
         }
 
-        ms.clients.client.query({ ids: user.trustedClients }, cb)
+        ms.plugins.client.query({ ids: user.trustedClients }, cb)
       })
     },
   })
@@ -32,6 +32,6 @@ module.exports = function(ms, opts, next) {
   next()
 }
 
-module.exports = {
+module.exports.attributes = {
   name: 'get-trusted-clients',
 }

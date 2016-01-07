@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = function(service, opts, next) {
-  let User = service.models.User
+  let User = service.plugins.models.User
 
   service.method({
     name: 'authenticate',
@@ -34,4 +34,5 @@ module.exports = function(service, opts, next) {
 
 module.exports.attributes = {
   name: 'authenticate-method',
+  dependencies: ['models'],
 }

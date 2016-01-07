@@ -12,7 +12,7 @@ module.exports = function(ms, opts, next) {
       }),
     },
     handler(params, cb) {
-      ms.models.User.findById(params.userId, function(err, user) {
+      ms.plugins.models.User.findById(params.userId, function(err, user) {
         if (err) {
           return cb(err)
         }

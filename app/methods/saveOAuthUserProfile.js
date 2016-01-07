@@ -39,7 +39,7 @@ function createPossibleUsername(providerUserProfile) {
 }
 
 module.exports = function(service, opts, next) {
-  let User = service.models.User
+  let User = service.plugins.models.User
 
   function createUser(providerUserProfile, cb) {
     let searchQuery = createQuery(providerUserProfile)
@@ -129,4 +129,8 @@ module.exports = function(service, opts, next) {
   })
 
   next()
+}
+
+module.exports.attributes = {
+  name: 'save-oauth-user-profile',
 }
