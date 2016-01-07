@@ -1,52 +1,63 @@
-'use strict';
+'use strict'
 
-var crypto = require('crypto');
+const joi = require('joi')
+const crypto = require('crypto')
 
-var ONE_DAY = 1000 * 60 * 60 * 24;
+const ONE_DAY = 1000 * 60 * 60 * 24
 
-module.exports = function(ms) {
-  var User = ms.models.User;
-  var mailer = ms.clients.mailer;
+module.exports = function(ms, opts, next) {
+  let User = ms.models.User
+  let mailer = ms.clients.mailer
 
-  return function sendVerificationEmail(userId, cb) {
-    if (!userId) {
-      return cb(new TypeError('userId required'), null);
-    }
-
-    User.findById(userId, function(err, user) {
-      if (err) {
-        return cb(err, null);
-      }
-
-      crypto.randomBytes(20, function(err, buffer) {
+  ms.method({
+    name: 'sendVerificationEmail',
+    config: {
+      validate: joi.object().keys({
+        userId: joi.string().required(),
+      }),
+    },
+    handler(params, cb) {
+      User.findById(params.userId, function(err, user) {
         if (err) {
-          return cb(err, null);
+          return cb(err, null)
         }
 
-        var token = buffer.toString('hex');
-
-        user.emailVerified = false;
-        user.emailVerificationToken = token;
-
-        user.emailVerificationTokenExpires = Date.now() + ONE_DAY;
-
-        user.save(function(err, user) {
+        crypto.randomBytes(20, function(err, buffer) {
           if (err) {
-            return cb(err, null);
+            return cb(err, null)
           }
 
-          mailer.send({
-            templateName: 'email-verification-email',
-            to: user.email,
-            locals: {
-              username: user.username,
-              token: user.emailVerificationToken
-            }
-          }, function() {});
+          let token = buffer.toString('hex')
 
-          return cb(null, null);
-        });
-      });
-    });
-  };
-};
+          user.emailVerified = false
+          user.emailVerificationToken = token
+
+          user.emailVerificationTokenExpires = Date.now() + ONE_DAY
+
+          user.save(function(err, user) {
+            if (err) {
+              return cb(err, null)
+            }
+
+            mailer.send({
+              templateName: 'email-verification-email',
+              to: user.email,
+              locals: {
+                username: user.username,
+                token: user.emailVerificationToken,
+              },
+            }, function() {})
+
+            return cb(null, null)
+          })
+        })
+      })
+    },
+  })
+
+  next()
+}
+
+module.exports.attributes = {
+  name: 'send-verification-email',
+}

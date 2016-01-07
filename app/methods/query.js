@@ -1,17 +1,28 @@
 'use strict';
 
-module.exports = function(ms) {
-  return function(params, cb) {
-    params = params || {};
-    params.fields = params.fields || [];
+const joi = require('joi')
 
-    if (!params.count) {
-      return cb(new Error('count is missing'));
-    }
+module.exports = function(ms, opts, next) {
+  ms.method({
+    name: 'query',
+    config: {
+      validate: joi.object().keys({
+        count: joi.number().required(),
+      }),
+    },
+    handler(params, cb) {
+      params.fields = params.fields || [];
 
-    ms.models.User
-      .find({}, params.fields.join(' '))
-      .limit(params.count)
-      .exec(cb);
-  };
-};
+      ms.models.User
+        .find({}, params.fields.join(' '))
+        .limit(params.count)
+        .exec(cb);
+    },
+  });
+
+  next()
+}
+
+module.exports.attributes = {
+  name: 'query',
+}

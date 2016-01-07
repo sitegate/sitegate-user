@@ -1,29 +1,40 @@
-'use strict';
+'use strict'
 
+const joi = require('joi')
 
-module.exports = function(ms) {
-  var User = ms.models.User;
+module.exports = function(ms, opts, next) {
+  let User = ms.models.User
 
-  return function(token, cb) {
-    if (!token) {
-      return cb(new TypeError('Token is required in the token validation function'), null);
-    }
+  ms.method({
+    name: 'validateResetToken',
+    config: {
+      validate: joi.object().keys({
+        token: joi.string().required(),
+      }),
+    },
+    handler(params, cb) {
+      User.findOne({
+        resetPasswordToken: params.token,
+        resetPasswordExpires: {
+          $gt: Date.now(),
+        },
+      }, function(err, user) {
+        if (err) {
+          return cb(err, null)
+        }
 
-    User.findOne({
-      resetPasswordToken: token,
-      resetPasswordExpires: {
-        $gt: Date.now()
-      }
-    }, function(err, user) {
-      if (err) {
-        return cb(err, null);
-      }
+        if (!user) {
+          return cb(new Error('Invalid reset token'), null)
+        }
 
-      if (!user) {
-        return cb(new Error('Invalid reset token'), null);
-      }
+        return cb(null, null)
+      })
+    },
+  })
 
-      return cb(null, null);
-    });
-  };
-};
+  next()
+}
+
+module.exports.attributes = {
+  name: 'validate-reset-token',
+}

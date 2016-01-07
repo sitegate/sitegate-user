@@ -36,5 +36,6 @@
   "requireAnonymousFunctions": {
     "allExcept": ["declarations"]
   },
-  "requireEarlyReturn": true
+  "requireEarlyReturn": true,
+  "requireSemicolons": false
 }

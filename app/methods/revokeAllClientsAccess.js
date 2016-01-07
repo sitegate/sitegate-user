@@ -1,23 +1,34 @@
-'use strict';
+'use strict'
 
-module.exports = function(ms) {
-  const User = ms.models.User;
+const joi = require('joi')
 
-  return function(params, cb) {
-    params = params || {};
+module.exports = function(ms, opts, next) {
+  const User = ms.models.User
 
-    if (!params.userId)
-      return cb(new Error('userId is missing'));
+  ms.method({
+    name: 'revokeAllClientsAccess',
+    config: {
+      validate: joi.object().keys({
+        userId: joi.string().required(),
+      }),
+    },
+    handler(params, cb) {
+      User.findById(params.userId, function(err, user) {
+        if (err) return cb(err)
 
-    User.findById(params.userId, function(err, user) {
-      if (err) return cb(err);
+        if (!user) return cb(new Error('User not found'))
 
-      if (!user) return cb(new Error('User not found'));
+        user.trustedClients
+          .splice(0, user.trustedClients.length)
 
-      user.trustedClients
-        .splice(0, user.trustedClients.length);
+        user.save(err => cb(err, user))
+      })
+    },
+  })
 
-      user.save((err) => cb(err, user));
-    });
-  };
-};
+  next()
+}
+
+module.exports.attributes = {
+  name: 'revoke-all-clients-access',
+}

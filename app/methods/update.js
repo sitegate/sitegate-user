@@ -1,53 +1,69 @@
-'use strict';
+'use strict'
 
-module.exports = function(ms) {
-  var User = ms.models.User;
-  var sendVerificationEmail = ms.methods.sendVerificationEmail;
+const joi = require('joi')
 
-  return function update(id, params, cb) {
-    User.findById(id, function(err, user) {
-      if (err) {
-        return cb(err, user);
-      }
+module.exports = function(ms, opts, next) {
+  let User = ms.models.User
+  let sendVerificationEmail = ms.methods.sendVerificationEmail
 
-      if (!user) {
-        return cb(new Error('userNotFound'));
-      }
-
-      user.username = params.username || user.username;
-
-      var newEmail = params.email ? params.email.toLowerCase() : null;
-      var sendVerificationEmail;
-
-      if (typeof params.emailVerified === 'boolean') {
-        user.emailVerified = params.emailVerified;
-      } else {
-        var emailHasBeenUpdated = newEmail && (newEmail !== user.email);
-        sendVerificationEmail = emailHasBeenUpdated;
-
-        if (emailHasBeenUpdated) {
-          user.emailVerified = false;
-        }
-      }
-
-      user.email = newEmail;
-      user.role = params.role || user.role;
-
-      user.save(function(err, user) {
+  ms.method({
+    name: 'update',
+    config: {
+      validate: joi.object().keys({
+        id: joi.string().required(),
+      }),
+    },
+    handler(params, cb) {
+      User.findById(params.id, function(err, user) {
         if (err) {
-          return cb(err, null);
+          return cb(err, user)
         }
 
-        if (sendVerificationEmail) {
-          sendVerificationEmail({
-            userId: user._id
-          });
+        if (!user) {
+          return cb(new Error('userNotFound'))
         }
 
-        return cb(err, user, {
-          emailHasBeenUpdated: emailHasBeenUpdated
-        });
-      });
-    });
-  };
-};
+        user.username = params.username || user.username
+
+        let newEmail = params.email ? params.email.toLowerCase() : null
+        let sendVerificationEmail
+
+        if (typeof params.emailVerified === 'boolean') {
+          user.emailVerified = params.emailVerified
+        } else {
+          let emailHasBeenUpdated = newEmail && (newEmail !== user.email)
+          sendVerificationEmail = emailHasBeenUpdated
+
+          if (emailHasBeenUpdated) {
+            user.emailVerified = false
+          }
+        }
+
+        user.email = newEmail
+        user.role = params.role || user.role
+
+        user.save(function(err, user) {
+          if (err) {
+            return cb(err, null)
+          }
+
+          if (sendVerificationEmail) {
+            sendVerificationEmail({
+              userId: user._id,
+            })
+          }
+
+          return cb(err, user, {
+            emailHasBeenUpdated: emailHasBeenUpdated,
+          })
+        })
+      })
+    },
+  })
+
+  next()
+}
+
+module.exports.attributes = {
+  name: 'update',
+}

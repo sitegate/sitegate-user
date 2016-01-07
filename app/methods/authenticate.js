@@ -1,26 +1,37 @@
-'use strict';
+'use strict'
 
-module.exports = function(ms) {
-  var User = ms.models.User;
+module.exports = function(service, opts, next) {
+  let User = service.models.User
 
-  return function authenticate(params, cb) {
-    User.findOne({
-      $or: [{
-          username: params.usernameOrEmail
-        }, {
-          email: params.usernameOrEmail
+  service.method({
+    name: 'authenticate',
+    handler(params, cb) {
+      User.findOne({
+        $or: [
+          {
+            username: params.usernameOrEmail,
+          },
+          {
+            email: params.usernameOrEmail,
+          },
+        ],
+      }, function(err, user) {
+        if (err) {
+          return cb(err, user)
         }
-      ]
-    }, function(err, user) {
-      if (err) {
-        return cb(err, user);
-      }
 
-      if (!user) {
-        return cb(new Error('incorrectUsernameOrEmail'), user);
-      }
+        if (!user) {
+          return cb(new Error('incorrectUsernameOrEmail'), user)
+        }
 
-      return user.authenticate(params.password, cb);
-    });
-  };
-};
+        return user.authenticate(params.password, cb)
+      })
+    },
+  })
+
+  next()
+}
+
+module.exports.attributes = {
+  name: 'authenticate-method',
+}

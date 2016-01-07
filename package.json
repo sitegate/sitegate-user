@@ -1,6 +1,6 @@
 {
   "name": "sitegate-user",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "User microservice for SiteGate",
   "main": "./lib/index.js",
   "author": {
@@ -21,6 +21,7 @@
     "debug": "^2.2.0",
     "joi": "^7.1.0",
     "mongoose": "^4.1.6",
-    "register-plugin": "^0.5.2"
+    "register-plugin": "^0.5.2",
+    "uva-amqp": "^0.5.1"
   }
 }

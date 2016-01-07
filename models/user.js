@@ -1,25 +1,25 @@
-'use strict';
+'use strict'
 
 /**
  * Module dependencies.
  */
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-const crypto = require('crypto');
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
+const crypto = require('crypto')
 
 /* Constants */
-const SALTLEN = 32;
-const ITERATIONS = 25000;
-const KEYLEN = 512;
-const INTERVAL = 100;
-const ENCODING = 'hex';
-const MAX_INTERVAL = 300000;
+const SALTLEN = 32
+const ITERATIONS = 25000
+const KEYLEN = 512
+const INTERVAL = 100
+const ENCODING = 'hex'
+const MAX_INTERVAL = 300000
 
 /**
  * A Validation function for local strategy properties
  */
 function validateLocalStrategyProperty(property) {
-  return (this.provider !== 'local' && !this.updated) || property.length;
+  return (this.provider !== 'local' && !this.updated) || property.length
 }
 
 /**
@@ -105,107 +105,107 @@ let UserSchema = new Schema({
       ref: 'Client',
     },
   ],
-});
+})
 
 /**
  * Find possible not used username
  */
 UserSchema.statics.findUniqueUsername = function(username, suffix, cb) {
-  let possibleUsername = username + (suffix || '');
+  let possibleUsername = username + (suffix || '')
 
   this.findOne({
     username: possibleUsername,
   }, function(err, user) {
-    if (!err) return cb(null);
+    if (!err) return cb(null)
 
-    if (!user) return cb(possibleUsername);
+    if (!user) return cb(possibleUsername)
 
-    return this.findUniqueUsername(username, (suffix || 0) + 1, cb);
-  }.bind(this));
-};
+    return this.findUniqueUsername(username, (suffix || 0) + 1, cb)
+  }.bind(this))
+}
 
 UserSchema.methods.trusts = function(clientId) {
-  return this.trustedClients && this.trustedClients.indexOf(clientId) !== -1;
-};
+  return this.trustedClients && this.trustedClients.indexOf(clientId) !== -1
+}
 
 UserSchema.pre('save', function(next) {
-  this.username = this.username.toLowerCase();
-  this.email = this.email.toLowerCase();
+  this.username = this.username.toLowerCase()
+  this.email = this.email.toLowerCase()
 
-  next();
-});
+  next()
+})
 
 UserSchema.methods.setPassword = function(password, cb) {
   if (!password) {
-    return cb(new Error('Password argument not set!'));
+    return cb(new Error('Password argument not set!'))
   }
 
   crypto.randomBytes(SALTLEN, function(err, buf) {
     if (err) {
-      return cb(err);
+      return cb(err)
     }
 
-    let salt = buf.toString(ENCODING);
+    let salt = buf.toString(ENCODING)
 
     crypto.pbkdf2(password, salt, ITERATIONS, KEYLEN, function(err, hashRaw) {
       if (err) {
-        return cb(err);
+        return cb(err)
       }
 
-      this.hash = new Buffer(hashRaw, 'binary').toString(ENCODING);
-      this.salt = salt;
+      this.hash = new Buffer(hashRaw, 'binary').toString(ENCODING)
+      this.salt = salt
 
-      cb(null, this);
-    }.bind(this));
-  });
-};
+      cb(null, this)
+    }.bind(this))
+  })
+}
 
 UserSchema.methods.authenticate = function(password, cb) {
-  let attemptsInterval = Math.pow(INTERVAL, Math.log(this.attempts + 1));
-  let calculatedInterval = Math.min(attemptsInterval, MAX_INTERVAL);
+  let attemptsInterval = Math.pow(INTERVAL, Math.log(this.attempts + 1))
+  let calculatedInterval = Math.min(attemptsInterval, MAX_INTERVAL)
 
   if (Date.now() - this.last < calculatedInterval) {
-    this.last = Date.now();
-    this.save();
-    return cb(new Error('Login attempted too soon after previous attempt'), null);
+    this.last = Date.now()
+    this.save()
+    return cb(new Error('Login attempted too soon after previous attempt'), null)
   }
 
   if (!this.salt) {
-    return cb(new Error('Authentication not possible. No salt value stored in mongodb collection!'), false);
+    return cb(new Error('Authentication not possible. No salt value stored in mongodb collection!'), false)
   }
 
   crypto.pbkdf2(password, this.salt, ITERATIONS, KEYLEN, function(err, hashRaw) {
     if (err) {
-      return cb(err);
+      return cb(err)
     }
 
-    let hash = new Buffer(hashRaw, 'binary').toString(ENCODING);
+    let hash = new Buffer(hashRaw, 'binary').toString(ENCODING)
 
     if (hash === this.hash) {
 
-      this.last = Date.now();
-      this.attempts = 0;
-      this.save();
+      this.last = Date.now()
+      this.attempts = 0
+      this.save()
 
-      return cb(null, this);
+      return cb(null, this)
     }
 
-    this.last = Date.now();
-    this.attempts++;
-    this.save();
-    return cb(new Error('Incorrect password'), null);
-  }.bind(this));
-};
+    this.last = Date.now()
+    this.attempts++
+    this.save()
+    return cb(new Error('Incorrect password'), null)
+  }.bind(this))
+}
 
 UserSchema.set('toJSON', {
   transform(doc, ret, options) {
-    ret.id = ret._id;
-    delete ret._id;
-    delete ret.__v;
-    return ret;
+    ret.id = ret._id
+    delete ret._id
+    delete ret.__v
+    return ret
   },
-});
+})
 
 module.exports = function(connection) {
-  return connection.model('User', UserSchema);
-};
+  return connection.model('User', UserSchema)
+}

@@ -1,57 +1,65 @@
-'use strict';
+'use strict'
 
-module.exports = function(ms) {
-  var User = ms.models.User;
-  var mailer = ms.clients.mailer;
+const joi = require('joi')
 
-  return function(params, cb) {
-    params = params || {};
+module.exports = function(ms, opts, next) {
+  let User = ms.models.User
+  let mailer = ms.clients.mailer
 
-    if (!params.token) {
-      return cb(new TypeError('token parameter is missing'));
-    }
-    if (!params.newPassword) {
-      return cb(new TypeError('newPassword parameter is missing'));
-    }
-
-    User.findOne({
-      resetPasswordToken: params.token,
-      resetPasswordExpires: {
-        $gt: Date.now()
-      }
-    }, function(err, user) {
-      if (err) {
-        return cb(err, null);
-      }
-
-      if (!user) {
-        return cb(new Error('Invalid reset token'), null);
-      }
-
-      user.resetPasswordToken = undefined;
-      user.resetPasswordExpires = undefined;
-
-      user.setPassword(params.newPassword, function(err, user) {
+  ms.method({
+    name: 'changePasswordUsingToken',
+    config: {
+      validate: joi.object().keys({
+        token: joi.string().required(),
+        newPassword: joi.string().required(),
+      }),
+    },
+    handler(params, cb) {
+      User.findOne({
+        resetPasswordToken: params.token,
+        resetPasswordExpires: {
+          $gt: Date.now(),
+        },
+      }, function(err, user) {
         if (err) {
-          return cb(err, null);
+          return cb(err, null)
         }
 
-        user.save(function(err) {
+        if (!user) {
+          return cb(new Error('Invalid reset token'), null)
+        }
+
+        user.resetPasswordToken = undefined
+        user.resetPasswordExpires = undefined
+
+        user.setPassword(params.newPassword, function(err, user) {
           if (err) {
-            return cb(err, null);
+            return cb(err, null)
           }
 
-          mailer.send({
-            templateName: 'reset-password-confirm-email',
-            to: user.email,
-            locals: {
-              username: user.username
+          user.save(function(err) {
+            if (err) {
+              return cb(err, null)
             }
-          }, function() {});
 
-          return cb(null, user);
-        });
-      });
-    });
-  };
-};
+            mailer.send({
+              templateName: 'reset-password-confirm-email',
+              to: user.email,
+              locals: {
+                username: user.username,
+              },
+            }, function() {})
+
+            return cb(null, user)
+          })
+        })
+      })
+    },
+  })
+
+  next()
+}
+
+module.exports.attributes = {
+  name: 'change-password-using-token',
+}
