@@ -2,7 +2,6 @@
   "name": "sitegate-user",
   "version": "0.3.0",
   "description": "User microservice for SiteGate",
-  "main": "./lib/index.js",
   "author": {
     "name": "Zoltan Kochan",
     "email": "zoltan.kochan@gmail.com",
@@ -20,7 +19,6 @@
     "crypto": "0.0.3",
     "debug": "^2.2.0",
     "joi": "^7.1.0",
-    "mongoose": "^4.1.6",
-    "uva-amqp": "^0.5.1"
+    "mongoose": "^4.1.6"
   }
 }
