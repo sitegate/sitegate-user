@@ -2,6 +2,9 @@
   "name": "sitegate-user",
   "version": "0.3.0",
   "description": "User microservice for SiteGate",
+  "scripts": {
+    "start": "node app"
+  },
   "author": {
     "name": "Zoltan Kochan",
     "email": "zoltan.kochan@gmail.com",
@@ -16,9 +19,13 @@
     "registry": "http://registry.npmjs.org"
   },
   "dependencies": {
+    "convict": "^1.0.2",
     "crypto": "0.0.3",
     "debug": "^2.2.0",
+    "jimbo": "0.0.1",
+    "jimbo-client": "0.0.0",
     "joi": "^7.1.0",
-    "mongoose": "^4.1.6"
+    "mongoose": "^4.1.6",
+    "yaml-or-json": "^0.1.0"
   }
 }
