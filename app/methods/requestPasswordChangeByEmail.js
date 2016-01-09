@@ -40,9 +40,9 @@ module.exports = function(ms, opts, next) {
   ms.method({
     name: 'requestPasswordChangeByEmail',
     config: {
-      validate: joi.object().keys({
+      validate: {
         email: joi.string().required(),
-      }),
+      },
     },
     handler(params, cb) {
       User.findOne({

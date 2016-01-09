@@ -8,9 +8,9 @@ module.exports = function(ms, opts, next) {
   ms.method({
     name: 'verifyEmailByToken',
     config: {
-      validate: joi.object().keys({
+      validate: {
         token: joi.string().required(),
-      }),
+      },
     },
     handler(params, cb) {
       User.findOne({

@@ -6,9 +6,9 @@ module.exports = function(ms, opts, next) {
   ms.method({
     name: 'getById',
     config: {
-      validate: joi.object().keys({
+      validate: {
         id: joi.string().required(),
-      }),
+      },
     },
     handler(params, cb) {
       let options = params.options || {}

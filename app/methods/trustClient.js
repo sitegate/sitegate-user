@@ -8,10 +8,10 @@ module.exports = function(ms, opts, next) {
   ms.method({
     name: 'trustClient',
     config: {
-      validate: joi.object().keys({
+      validate: {
         userId: joi.string().required(),
         clientId: joi.string().required(),
-      }),
+      },
     },
     handler(params, cb) {
       User.findById(params.userId, function(err, user) {

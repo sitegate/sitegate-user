@@ -8,11 +8,11 @@ module.exports = function(ms, opts, next) {
   ms.method({
     name: 'register',
     config: {
-      validate: joi.object().keys({
+      validate: {
         username: joi.string().required(),
         email: joi.string().required(),
         password: joi.string().required(),
-      }),
+      },
     },
     handler(params, cb) {
       let user = new User(params)

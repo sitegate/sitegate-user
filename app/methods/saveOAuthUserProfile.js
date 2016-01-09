@@ -104,7 +104,7 @@ module.exports = function(service, opts, next) {
   service.method({
     name: 'saveOAuthUserProfile',
     config: {
-      validate: joi.object().keys({
+      validate: {
         providerUserProfile: joi.object()
           .keys({
             providerIdentifierField: joi.string().required(),
@@ -115,7 +115,7 @@ module.exports = function(service, opts, next) {
         loggedUser: joi.object().keys({
           id: joi.string().required(),
         }),
-      }),
+      },
     },
     handler(params, cb) {
       let providerUserProfile = params.providerUserProfile

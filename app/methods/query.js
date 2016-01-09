@@ -6,9 +6,9 @@ module.exports = function(ms, opts, next) {
   ms.method({
     name: 'query',
     config: {
-      validate: joi.object().keys({
+      validate: {
         count: joi.number().required(),
-      }),
+      },
     },
     handler(params, cb) {
       params.fields = params.fields || [];

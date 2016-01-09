@@ -8,9 +8,9 @@ module.exports = function(ms, opts, next) {
   ms.method({
     name: 'revokeAllClientsAccess',
     config: {
-      validate: joi.object().keys({
+      validate: {
         userId: joi.string().required(),
-      }),
+      },
     },
     handler(params, cb) {
       User.findById(params.userId, function(err, user) {

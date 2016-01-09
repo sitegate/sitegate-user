@@ -6,9 +6,9 @@ module.exports = function(ms, opts, next) {
   ms.method({
     name: 'getTrustedClients',
     config: {
-      validate: joi.object().keys({
+      validate: {
         userId: joi.string().required(),
-      }),
+      },
     },
     handler(params, cb) {
       ms.plugins.models.User.findById(params.userId, function(err, user) {

@@ -9,9 +9,9 @@ module.exports = function(ms, opts, next) {
   ms.method({
     name: 'update',
     config: {
-      validate: joi.object().keys({
+      validate: {
         id: joi.string().required(),
-      }),
+      },
     },
     handler(params, cb) {
       User.findById(params.id, function(err, user) {
