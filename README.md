@@ -2,6 +2,7 @@
 
 [![Dependency Status](https://david-dm.org/sitegate/user.svg)](https://david-dm.org/sitegate/user)
 [![Build Status](https://travis-ci.org/sitegate/user.svg)](https://travis-ci.org/sitegate/user)
+[![Coverage Status](https://coveralls.io/repos/sitegate/user/badge.svg?branch=canary&service=github)](https://coveralls.io/github/sitegate/user?branch=canary)
 
 
 ## Methods
