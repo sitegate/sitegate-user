@@ -77,6 +77,24 @@ describe('changePasswordUsingToken', function() {
       .then(() => this._server.methods.validateResetToken({
         token: fakeUser.resetPasswordToken,
       }))
+    expect(result).to.be.rejectedWith(Error, 'Reset token expired').notify(done)
+  })
+
+  it('should fail if reset token doesn\'t exist', function(done) {
+    let result = this._server
+      .register([
+        {
+          register: helpers.userCreator(R.merge(fakeUser, {
+            resetPasswordExpires: Date.now() + 1000 * 60 * 60,
+          })),
+        },
+        {
+          register: validateResetToken,
+        },
+      ])
+      .then(() => this._server.methods.validateResetToken({
+        token: 'this token doesn\'t exist',
+      }))
     expect(result).to.be.rejectedWith(Error, 'Invalid reset token').notify(done)
   })
 })

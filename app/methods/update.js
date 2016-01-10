@@ -14,23 +14,22 @@ module.exports = function(ms, opts, next) {
     },
     handler(params, cb) {
       User.findById(params.id, function(err, user) {
-        if (err) {
+        if (err)
           return cb(err, user)
-        }
 
-        if (!user) {
+        if (!user)
           return cb(new Error('userNotFound'))
-        }
 
         user.username = params.username || user.username
 
         let newEmail = params.email ? params.email.toLowerCase() : null
         let sendVerificationEmail
+        let emailHasBeenUpdated
 
         if (typeof params.emailVerified === 'boolean') {
           user.emailVerified = params.emailVerified
         } else {
-          let emailHasBeenUpdated = newEmail && (newEmail !== user.email)
+          emailHasBeenUpdated = newEmail && (newEmail !== user.email)
           sendVerificationEmail = emailHasBeenUpdated
 
           if (emailHasBeenUpdated) {
@@ -42,9 +41,8 @@ module.exports = function(ms, opts, next) {
         user.role = params.role || user.role
 
         user.save(function(err, user) {
-          if (err) {
+          if (err)
             return cb(err, null)
-          }
 
           if (sendVerificationEmail) {
             sendVerificationEmail({

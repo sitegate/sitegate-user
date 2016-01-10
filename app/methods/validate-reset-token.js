@@ -14,15 +14,15 @@ module.exports = function(ms, opts, next) {
     handler(params, cb) {
       User.findOne({
         resetPasswordToken: params.token,
-        resetPasswordExpires: {
-          $gt: Date.now(),
-        },
       }, function(err, user) {
         if (err)
           return cb(err, null)
 
         if (!user)
           return cb(new Error('Invalid reset token'), null)
+
+        if (user.resetPasswordExpires < Date.now())
+          return cb(new Error('Reset token expired'))
 
         return cb(null, null)
       })
