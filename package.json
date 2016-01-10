@@ -4,7 +4,9 @@
   "description": "User microservice for SiteGate",
   "scripts": {
     "start": "node app",
-    "test": "mocha test/{**/,/}*.js"
+    "test": "mocha test/{**/,/}*.js",
+    "coverage": "istanbul cover _mocha test/{**/,/}*.js -- -R spec",
+    "coveralls": "istanbul cover _mocha test/{**/,/}*.js --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "author": {
     "name": "Zoltan Kochan",
@@ -33,6 +35,8 @@
   "devDependencies": {
     "chai": "^3.4.1",
     "chai-as-promised": "^5.2.0",
+    "coveralls": "^2.11.6",
+    "istanbul": "^0.4.1",
     "mocha": "^2.3.4",
     "ramda": "^0.19.1"
   }
