@@ -27,11 +27,13 @@
     "jimbo-client": "0.0.0",
     "joi": "^7.1.0",
     "mongoose": "^4.1.6",
+    "plugiator": "^0.1.0",
     "yaml-or-json": "^0.1.0"
   },
   "devDependencies": {
     "chai": "^3.4.1",
     "chai-as-promised": "^5.2.0",
-    "mocha": "^2.3.4"
+    "mocha": "^2.3.4",
+    "ramda": "^0.19.1"
   }
 }

@@ -20,26 +20,22 @@ module.exports = function(ms, opts, next) {
           $gt: Date.now(),
         },
       }, function(err, user) {
-        if (err) {
+        if (err)
           return cb(err, null)
-        }
 
-        if (!user) {
+        if (!user)
           return cb(new Error('Invalid reset token'), null)
-        }
 
         user.resetPasswordToken = undefined
         user.resetPasswordExpires = undefined
 
         user.setPassword(params.newPassword, function(err, user) {
-          if (err) {
+          if (err)
             return cb(err, null)
-          }
 
           user.save(function(err) {
-            if (err) {
+            if (err)
               return cb(err, null)
-            }
 
             mailer.send({
               templateName: 'reset-password-confirm-email',

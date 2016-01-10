@@ -6,6 +6,7 @@ const mongotest = require('./mongotest')
 const jimbo = require('jimbo')
 const registerPlugin = require('../../app/methods/register')
 const modelsPlugin = require('../../models')
+const helpers = require('./helpers')
 
 chai.use(chaiAsPromised)
 
@@ -26,16 +27,6 @@ sendVerificationEmail.attributes = {
   name: 'send-verification-email',
 }
 
-function createPlugin(fn) {
-  fn.attributes = {
-    name: 'test-' + Math.random(),
-  }
-
-  return {
-    register: fn,
-  }
-}
-
 let fakeUser = {
   username: 'sherlock',
   email: 'sherlock@holmes.uk',
@@ -45,13 +36,7 @@ let fakeUser = {
   emailVerified: false,
 }
 
-let fakeUserPlugin = createPlugin((server, opts, next) => {
-  let User = server.plugins.models.User
-
-  let newUser = new User(fakeUser)
-
-  newUser.save(err => next(err))
-})
+let fakeUserPlugin = helpers.userCreator(fakeUser)
 
 describe('register', function() {
   beforeEach(mongotest.prepareDb(MONGO_URI));

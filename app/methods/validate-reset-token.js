@@ -1,5 +1,4 @@
 'use strict'
-
 const joi = require('joi')
 
 module.exports = function(ms, opts, next) {
@@ -19,13 +18,11 @@ module.exports = function(ms, opts, next) {
           $gt: Date.now(),
         },
       }, function(err, user) {
-        if (err) {
+        if (err)
           return cb(err, null)
-        }
 
-        if (!user) {
+        if (!user)
           return cb(new Error('Invalid reset token'), null)
-        }
 
         return cb(null, null)
       })

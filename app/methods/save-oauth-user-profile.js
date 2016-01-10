@@ -1,5 +1,4 @@
 'use strict'
-
 const joi = require('joi')
 
 function createQuery(providerUserProfile) {
