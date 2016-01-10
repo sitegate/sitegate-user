@@ -7,5 +7,10 @@ exports.userCreator = user =>
 
     let newUser = new User(user)
 
-    newUser.save(err => next(err))
+    newUser.save((err, newUser) => {
+      if (err) return next(err)
+
+      user.id = newUser.id
+      next()
+    })
   })

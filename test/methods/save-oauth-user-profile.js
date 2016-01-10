@@ -71,4 +71,37 @@ describe('saveOAuthUserProfile', function() {
         done()
       })
   })
+
+  it('should extend an existing account with a new provider', function(done) {
+    return this._server
+      .register([
+        {
+          register: helpers.userCreator(fakeUser),
+        },
+        {
+          register: saveOAuthUserProfile,
+        },
+      ])
+      .then(() => this._server.methods.saveOAuthUserProfile({
+        providerUserProfile: {
+          username: 'james.bond',
+          email: fakeUser.email,
+          providerIdentifierField: 'id',
+          provider: 'facebook',
+          providerData: {
+            id: 'f34f34f3f',
+            username: 'james.bond',
+            email: 'james.bond@gmail.com',
+          },
+        },
+        loggedUser: {
+          id: fakeUser.id,
+        },
+      }))
+      .then(user => {
+        expect(user).to.exist
+        expect(user.id).to.eq(fakeUser.id)
+        done()
+      })
+  })
 })
