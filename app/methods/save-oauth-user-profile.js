@@ -104,16 +104,19 @@ module.exports = function(service, opts, next) {
     name: 'saveOAuthUserProfile',
     config: {
       validate: {
-        providerUserProfile: joi.object()
-          .keys({
-            providerIdentifierField: joi.string().required(),
-            provider: joi.string().required(),
-            providerData: joi.object().required(),
-          })
-          .required(),
-        loggedUser: joi.object().keys({
-          id: joi.string().required(),
-        }),
+        providerUserProfile: {
+          username: joi.string().required(),
+          email: joi.string().required(),
+          firstName: joi.string(),
+          lastName: joi.string(),
+          displayName: joi.string(),
+          providerIdentifierField: joi.string().required(),
+          provider: joi.string().required(),
+          providerData: joi.object().required(),
+        },
+        loggedUser: {
+          id: joi.string(),
+        },
       },
     },
     handler(params, cb) {

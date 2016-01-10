@@ -115,13 +115,13 @@ UserSchema.statics.findUniqueUsername = function(username, suffix, cb) {
 
   this.findOne({
     username: possibleUsername,
-  }, function(err, user) {
-    if (!err) return cb(null)
+  }, (err, user) => {
+    if (err) return cb(null)
 
     if (!user) return cb(possibleUsername)
 
     return this.findUniqueUsername(username, (suffix || 0) + 1, cb)
-  }.bind(this))
+  })
 }
 
 UserSchema.methods.trusts = function(clientId) {
