@@ -1,5 +1,4 @@
 'use strict'
-
 module.exports = function(service, opts, next) {
   if (!opts.amqpURL)
     return next(new Error('amqpURL is required'))
@@ -8,7 +7,9 @@ module.exports = function(service, opts, next) {
     name: 'mailer',
     channel: 'sitegate-mailer',
     url: opts.amqpURL,
-    methods: [],
+    methods: [
+      'sendEmail',
+    ],
   })
 
   next()

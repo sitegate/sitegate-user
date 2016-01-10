@@ -1,5 +1,4 @@
 'use strict'
-
 const joi = require('joi')
 
 module.exports = function(ms, opts, next) {
@@ -12,6 +11,9 @@ module.exports = function(ms, opts, next) {
         username: joi.string().required(),
         email: joi.string().required(),
         password: joi.string().required(),
+        provider: joi.string().required(),
+        displayName: joi.string(),
+        emailVerified: joi.bool(),
       },
     },
     handler(params, cb) {
@@ -20,38 +22,28 @@ module.exports = function(ms, opts, next) {
       User.findOne({
         username: user.username,
       }, function(err, existingUser) {
-        if (err) {
-          return cb(err)
-        }
+        if (err) return cb(err)
 
-        if (existingUser) {
-          return cb(new Error('username already Exists'))
-        }
+        if (existingUser) return cb(new Error('username already Exists'))
 
         User.findOne({
           email: user.email,
         }, function(err, existingUser) {
-          if (err) {
-            return cb(err)
-          }
+          if (err) return cb(err)
 
-          if (existingUser) {
+          if (existingUser)
             return cb(new Error('email already Exists'))
-          }
 
-          user.setPassword(params.password, function(err, user) {
-            if (err) {
-              return cb(err)
-            }
+          user.setPassword(params.password, function(err) {
+            if (err) return cb(err)
 
             user.save(function(err) {
-              if (err) {
-                return cb(err)
-              }
+              if (err) return cb(err)
 
-              if (!user.emailVerified) {
-                ms.methods.sendVerificationEmail(user._id, function() {})
-              }
+              if (!user.emailVerified)
+                ms.methods.sendVerificationEmail({
+                  userId: user._id,
+                }, function() {})
 
               cb(null, user)
             })

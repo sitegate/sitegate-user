@@ -8,7 +8,15 @@ module.exports = function(service, opts, next) {
     name: 'mailer',
     channel: 'sitegate-mailer',
     url: opts.amqpURL,
-    methods: [],
+    methods: [
+      'create',
+      'getById',
+      'getById',
+      'getByPublicId',
+      'query',
+      'remove',
+      'update',
+    ],
   })
 
   next()
