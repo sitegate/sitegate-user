@@ -3,7 +3,8 @@
   "version": "0.3.0",
   "description": "User microservice for SiteGate",
   "scripts": {
-    "start": "node app"
+    "start": "node app",
+    "test": "mocha test/{**/,/}*.js"
   },
   "author": {
     "name": "Zoltan Kochan",
@@ -22,10 +23,14 @@
     "convict": "^1.0.2",
     "crypto": "0.0.3",
     "debug": "^2.2.0",
-    "jimbo": "0.0.3",
+    "jimbo": "0.0.4",
     "jimbo-client": "0.0.0",
     "joi": "^7.1.0",
     "mongoose": "^4.1.6",
     "yaml-or-json": "^0.1.0"
+  },
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "mocha": "^2.3.4"
   }
 }
