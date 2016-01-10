@@ -24,7 +24,7 @@ module.exports = function(ms, opts, next) {
       }, function(err, existingUser) {
         if (err) return cb(err)
 
-        if (existingUser) return cb(new Error('username already Exists'))
+        if (existingUser) return cb(new Error('username already exists'))
 
         User.findOne({
           email: user.email,
@@ -32,7 +32,7 @@ module.exports = function(ms, opts, next) {
           if (err) return cb(err)
 
           if (existingUser)
-            return cb(new Error('email already Exists'))
+            return cb(new Error('email already exists'))
 
           user.setPassword(params.password, function(err) {
             if (err) return cb(err)
