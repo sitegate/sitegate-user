@@ -35,22 +35,22 @@ server.register([
     register: require('./app/methods/authenticate'),
   },
   {
-    register: require('./app/methods/changePassword'),
+    register: require('./app/methods/change-password'),
   },
   {
-    register: require('./app/methods/changePasswordUsingToken'),
+    register: require('./app/methods/change-password-using-token'),
   },
   {
-    register: require('./app/methods/disconnectProvider'),
+    register: require('./app/methods/disconnect-provider'),
   },
   {
-    register: require('./app/methods/getById'),
+    register: require('./app/methods/get-by-id'),
   },
   {
-    register: require('./app/methods/getByUsername'),
+    register: require('./app/methods/get-by-username'),
   },
   {
-    register: require('./app/methods/getTrustedClients'),
+    register: require('./app/methods/get-trusted-clients'),
   },
   {
     register: require('./app/methods/query'),
@@ -59,31 +59,31 @@ server.register([
     register: require('./app/methods/register'),
   },
   {
-    register: require('./app/methods/requestPasswordChangeByEmail'),
+    register: require('./app/methods/request-password-change-by-email'),
   },
   {
-    register: require('./app/methods/revokeAllClientsAccess'),
+    register: require('./app/methods/revoke-all-clients-access'),
   },
   {
-    register: require('./app/methods/saveOAuthUserProfile'),
+    register: require('./app/methods/save-oauth-user-profile'),
   },
   {
-    register: require('./app/methods/sendVerificationEmail'),
+    register: require('./app/methods/send-verification-email'),
   },
   {
-    register: require('./app/methods/trustClient'),
+    register: require('./app/methods/trust-client'),
   },
   {
-    register: require('./app/methods/trustsClient'),
+    register: require('./app/methods/trusts-client'),
   },
   {
     register: require('./app/methods/update'),
   },
   {
-    register: require('./app/methods/validateResetToken'),
+    register: require('./app/methods/validate-reset-token'),
   },
   {
-    register: require('./app/methods/verifyEmailByToken'),
+    register: require('./app/methods/verify-email-by-token'),
   },
 ], err => {
   if (err) throw err

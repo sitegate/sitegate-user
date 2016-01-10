@@ -1,5 +1,4 @@
 'use strict'
-
 module.exports = function(service, opts, next) {
   let User = service.plugins.models.User
 
