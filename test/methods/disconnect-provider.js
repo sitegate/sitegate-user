@@ -28,7 +28,7 @@ let fakeUser = {
   },
 }
 
-describe.only('disconnectProvider', function() {
+describe('disconnectProvider', function() {
   beforeEach(mongotest.prepareDb(MONGO_URI));
   beforeEach(function(next) {
     this._server = new jimbo.Server()
