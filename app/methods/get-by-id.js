@@ -11,11 +11,11 @@ module.exports = function(ms, opts) {
         id: joi.string().required(),
       },
     },
-    handler(params, cb) {
+    handler(params) {
       let options = params.options || {}
       options.fields = options.fields || []
 
-      User.findById(params.id, options.fields.join(' '), cb)
+      return User.findById(params.id, options.fields.join(' ')).exec()
     },
   });
 }

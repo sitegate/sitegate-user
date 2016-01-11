@@ -2,6 +2,8 @@
 const joi = require('joi')
 
 module.exports = function(ms, opts) {
+  let User = ms.plugins.models.User
+
   ms.method({
     name: 'getByUsername',
     config: {
@@ -9,12 +11,12 @@ module.exports = function(ms, opts) {
         username: joi.string().required(),
       },
     },
-    handler(params, cb) {
+    handler(params) {
       let options = params.options || {}
       options.fields = options.fields || []
 
-      ms.plugins.models.User
-        .findOne({ username: params.username }, options.fields.join(' '), cb);
+      return User
+        .findOne({ username: params.username }, options.fields.join(' ')).exec()
     },
   });
 }
