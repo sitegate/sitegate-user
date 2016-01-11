@@ -136,27 +136,21 @@ UserSchema.pre('save', function(next) {
 })
 
 UserSchema.methods.setPassword = function(password, cb) {
-  if (!password) {
-    return cb(new Error('Password argument not set!'))
-  }
+  if (!password) cb(new Error('Password argument not set!'))
 
-  crypto.randomBytes(SALTLEN, function(err, buf) {
-    if (err) {
-      return cb(err)
-    }
+  crypto.randomBytes(SALTLEN, (err, buf) => {
+    if (err) return cb(err)
 
     let salt = buf.toString(ENCODING)
 
-    crypto.pbkdf2(password, salt, ITERATIONS, KEYLEN, function(err, hashRaw) {
-      if (err) {
-        return cb(err)
-      }
+    crypto.pbkdf2(password, salt, ITERATIONS, KEYLEN, (err, hashRaw) => {
+      if (err) return cb(err)
 
       this.hash = new Buffer(hashRaw, 'binary').toString(ENCODING)
       this.salt = salt
 
       cb(null, this)
-    }.bind(this))
+    })
   })
 }
 
