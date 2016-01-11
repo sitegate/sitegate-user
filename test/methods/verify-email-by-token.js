@@ -6,7 +6,8 @@ const mongotest = require('./mongotest')
 const jimbo = require('jimbo')
 const modelsPlugin = require('../../models')
 const helpers = require('./helpers')
-const validateResetToken = require('../../app/methods/validate-reset-token')
+const getById = require('../../app/methods/get-by-id')
+const verifyEmailByToken = require('../../app/methods/verify-email-by-token')
 const R = require('ramda')
 
 chai.use(chaiAsPromised)
@@ -20,10 +21,10 @@ let fakeUser = {
   provider: 'local',
   displayName: 'Sherlock Holmes',
   emailVerified: false,
-  resetPasswordToken: 'f34f3f43gwgw45g34',
+  emailVerificationToken: 'f34f3f43gwgw45g34',
 }
 
-describe('validateResetToken', function() {
+describe('verifyEmailByToken', function() {
   beforeEach(mongotest.prepareDb(MONGO_URI));
   beforeEach(function(next) {
     this._server = new jimbo.Server()
@@ -44,22 +45,31 @@ describe('validateResetToken', function() {
   })
   afterEach(mongotest.disconnect());
 
-  it('should reset password if valid params passed', function(done) {
-    let result = this._server
+  it('should verify email if token not expired', function() {
+    return this._server
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
-            resetPasswordExpires: Date.now() + 1000 * 60 * 60,
+            emailVerificationTokenExpires: Date.now() + 1000 * 60 * 60,
           })),
         },
         {
-          register: validateResetToken,
+          register: getById,
+        },
+        {
+          register: verifyEmailByToken,
         },
       ])
-      .then(() => this._server.methods.validateResetToken({
-        token: fakeUser.resetPasswordToken,
+      .then(() => this._server.methods.verifyEmailByToken({
+        token: fakeUser.emailVerificationToken,
       }))
-    expect(result).to.eventually.eq(null).notify(done)
+      .then(() => this._server.methods.getById({
+        id: this._server.fakeUser.id,
+      }))
+      .then(user => {
+        expect(user.emailVerified).to.be.true
+        expect(user.emailVerificationToken).to.not.exist
+      })
   })
 
   it('should fail if reset token expired', function(done) {
@@ -67,17 +77,17 @@ describe('validateResetToken', function() {
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
-            resetPasswordExpires: Date.now() - 1000 * 60 * 60,
+            emailVerificationTokenExpires: Date.now() - 1000 * 60 * 60,
           })),
         },
         {
-          register: validateResetToken,
+          register: verifyEmailByToken,
         },
       ])
-      .then(() => this._server.methods.validateResetToken({
-        token: fakeUser.resetPasswordToken,
+      .then(() => this._server.methods.verifyEmailByToken({
+        token: fakeUser.emailVerificationToken,
       }))
-    expect(result).to.be.rejectedWith(Error, 'Reset token expired').notify(done)
+    expect(result).to.be.rejectedWith(Error, 'Email verification token expired').notify(done)
   })
 
   it('should fail if reset token doesn\'t exist', function(done) {
@@ -85,16 +95,16 @@ describe('validateResetToken', function() {
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
-            resetPasswordExpires: Date.now() + 1000 * 60 * 60,
+            emailVerificationTokenExpires: Date.now() + 1000 * 60 * 60,
           })),
         },
         {
-          register: validateResetToken,
+          register: verifyEmailByToken,
         },
       ])
-      .then(() => this._server.methods.validateResetToken({
+      .then(() => this._server.methods.verifyEmailByToken({
         token: 'this token doesn\'t exist',
       }))
-    expect(result).to.be.rejectedWith(Error, 'Invalid reset token').notify(done)
+    expect(result).to.be.rejectedWith(Error, 'Invalid email verification token').notify(done)
   })
 })
