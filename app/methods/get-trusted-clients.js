@@ -1,7 +1,7 @@
 'use strict'
 const joi = require('joi')
 
-module.exports = function(ms, opts, next) {
+module.exports = function(ms, opts) {
   ms.method({
     name: 'getTrustedClients',
     config: {
@@ -27,8 +27,6 @@ module.exports = function(ms, opts, next) {
       })
     },
   })
-
-  next()
 }
 
 module.exports.attributes = {

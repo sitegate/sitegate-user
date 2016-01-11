@@ -1,7 +1,7 @@
 'use strict'
 const joi = require('joi')
 
-module.exports = function(service, opts, next) {
+module.exports = function(service, opts) {
   let User = service.plugins.models.User
 
   service.method({
@@ -32,8 +32,6 @@ module.exports = function(service, opts, next) {
       })
     },
   })
-
-  next()
 }
 
 module.exports.attributes = {

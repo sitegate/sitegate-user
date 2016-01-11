@@ -37,7 +37,7 @@ function createPossibleUsername(providerUserProfile) {
   return ''
 }
 
-module.exports = function(service, opts, next) {
+module.exports = function(service, opts) {
   let User = service.plugins.models.User
 
   function createUser(providerUserProfile, cb) {
@@ -129,8 +129,6 @@ module.exports = function(service, opts, next) {
       return createUser(providerUserProfile, cb)
     },
   })
-
-  next()
 }
 
 module.exports.attributes = {

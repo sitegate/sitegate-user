@@ -25,7 +25,7 @@
     "convict": "^1.0.2",
     "crypto": "0.0.3",
     "debug": "^2.2.0",
-    "jimbo": "0.0.6",
+    "jimbo": "0.0.7",
     "jimbo-client": "0.0.0",
     "joi": "^7.1.0",
     "mongoose": "^4.1.6",

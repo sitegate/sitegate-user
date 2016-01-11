@@ -1,7 +1,7 @@
 'use strict'
 const joi = require('joi')
 
-module.exports = function(ms, opts, next) {
+module.exports = function(ms, opts) {
   ms.method({
     name: 'getByUsername',
     config: {
@@ -17,8 +17,6 @@ module.exports = function(ms, opts, next) {
         .findOne({ username: params.username }, options.fields.join(' '), cb);
     },
   });
-
-  next()
 }
 
 module.exports.attributes = {

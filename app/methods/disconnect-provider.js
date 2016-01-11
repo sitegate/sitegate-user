@@ -1,7 +1,7 @@
 'use strict'
 const joi = require('joi')
 
-module.exports = function(ms, opts, next) {
+module.exports = function(ms, opts) {
   let User = ms.plugins.models.User
 
   ms.method({
@@ -39,8 +39,6 @@ module.exports = function(ms, opts, next) {
       })
     },
   })
-
-  next()
 }
 
 module.exports.attributes = {
