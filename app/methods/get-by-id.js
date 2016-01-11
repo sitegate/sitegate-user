@@ -2,6 +2,8 @@
 const joi = require('joi')
 
 module.exports = function(ms, opts, next) {
+  let User = ms.plugins.models.User
+
   ms.method({
     name: 'getById',
     config: {
@@ -13,7 +15,7 @@ module.exports = function(ms, opts, next) {
       let options = params.options || {}
       options.fields = options.fields || []
 
-      ms.plugins.models.User.findById(params.id, options.fields.join(' '), cb)
+      User.findById(params.id, options.fields.join(' '), cb)
     },
   });
 

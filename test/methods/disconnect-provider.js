@@ -90,4 +90,25 @@ describe('disconnectProvider', function() {
     expect(result).to.be
       .rejectedWith(Error, 'Can\' disconnect the main provider').notify(done)
   })
+
+  it('should return error when disconnecting non-connected provider', function(done) {
+    let result = this._server
+      .register([
+        {
+          register: helpers.userCreator(R.merge(fakeUser, {
+            provider: 'facebook',
+          })),
+        },
+        {
+          register: disconnectProvider,
+        },
+      ])
+      .then(() => this._server.methods.disconnectProvider({
+        userId: this._server.fakeUser.id,
+        strategy: 'github',
+      }))
+
+    expect(result).to.be
+      .rejectedWith(Error, 'User doesn\'t have this provider').notify(done)
+  })
 })
