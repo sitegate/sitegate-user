@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 const joi = require('joi')
 
 function saveNewPassword(user, params, cb) {
@@ -11,8 +11,8 @@ function saveNewPassword(user, params, cb) {
         return cb(err)
 
       return cb(err, user)
-    });
-  });
+    })
+  })
 }
 
 module.exports = function(ms, opts, next) {
@@ -24,6 +24,8 @@ module.exports = function(ms, opts, next) {
       validate: {
         userId: joi.string().required(),
         newPassword: joi.string().required(),
+        currentPassword: joi.string(),
+        forceNewPassword: joi.bool(),
       },
     },
     handler(params, cb) {
@@ -42,10 +44,10 @@ module.exports = function(ms, opts, next) {
             return cb(err, user)
 
           return saveNewPassword(user, params, cb)
-        });
-      });
+        })
+      })
     },
-  });
+  })
 
   next()
 }
