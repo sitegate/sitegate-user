@@ -10,12 +10,16 @@ module.exports = function(ms, opts, next) {
     config: {
       validate: {
         id: joi.string().required(),
+        username: joi.string(),
+        email: joi.string(),
+        emailVerified: joi.bool(),
+        role: joi.string(),
       },
     },
     handler(params, cb) {
       User.findById(params.id, function(err, user) {
         if (err)
-          return cb(err, user)
+          return cb(err)
 
         if (!user)
           return cb(new Error('userNotFound'))
@@ -45,13 +49,14 @@ module.exports = function(ms, opts, next) {
             return cb(err, null)
 
           if (sendVerificationEmail) {
-            sendVerificationEmail({
-              userId: user._id,
+            ms.methods.sendVerificationEmail({
+              userId: user.id,
             })
           }
 
-          return cb(err, user, {
-            emailHasBeenUpdated: emailHasBeenUpdated,
+          return cb(err, {
+            user,
+            emailHasBeenUpdated,
           })
         })
       })
