@@ -13,14 +13,12 @@ module.exports = function(ms, opts, next) {
       },
     },
     handler(params, cb) {
-      User.findById(params.userId, function(err, user) {
-        if (err) {
+      User.findById(params.userId, (err, user) => {
+        if (err)
           return cb(err)
-        }
 
-        if (!user) {
+        if (!user)
           return cb(new Error('User not found'))
-        }
 
         cb(null, user.trusts(params.clientId))
       })
