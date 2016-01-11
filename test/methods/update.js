@@ -33,11 +33,6 @@ describe('update', function() {
   beforeEach(function(next) {
     this._server = new jimbo.Server()
 
-    this._server.connection({
-      channel: 'sitegate-user',
-      url: 'amqp://guest:guest@localhost:5672',
-    })
-
     this._server.register([
       {
         register: modelsPlugin,
