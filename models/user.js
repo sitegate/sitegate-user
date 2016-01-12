@@ -1,4 +1,5 @@
 'use strict'
+const thenify = require('thenify').withCallback
 
 /**
  * Module dependencies.
@@ -135,7 +136,7 @@ UserSchema.pre('save', function(next) {
   next()
 })
 
-UserSchema.methods.setPassword = function(password, cb) {
+UserSchema.methods.setPassword = thenify(function(password, cb) {
   if (!password) cb(new Error('Password argument not set!'))
 
   crypto.randomBytes(SALTLEN, (err, buf) => {
@@ -152,9 +153,9 @@ UserSchema.methods.setPassword = function(password, cb) {
       cb(null, this)
     })
   })
-}
+})
 
-UserSchema.methods.authenticate = function(password, cb) {
+UserSchema.methods.authenticate = thenify(function(password, cb) {
   let attemptsInterval = Math.pow(INTERVAL, Math.log(this.attempts + 1))
   let calculatedInterval = Math.min(attemptsInterval, MAX_INTERVAL)
 
@@ -189,7 +190,7 @@ UserSchema.methods.authenticate = function(password, cb) {
     this.save()
     return cb(new Error('Incorrect password'), null)
   }.bind(this))
-}
+})
 
 UserSchema.set('toJSON', {
   transform(doc, ret, options) {

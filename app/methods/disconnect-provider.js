@@ -12,31 +12,27 @@ module.exports = function(ms, opts) {
         strategy: joi.string().required(),
       },
     },
-    handler(params, cb) {
-      User.findById(params.userId, (err, user) => {
-        if (err)
-          return cb(err)
+    handler(params) {
+      return User.findById(params.userId).exec()
+        .then(user => {
+          if (!user)
+            return Promise
+              .reject(new Error('The logged user not found in the datastore'))
 
-        if (!user)
-          return cb(new Error('The logged user not found in the datastore'))
+          if (user.provider.toLowerCase() === params.strategy.toLowerCase())
+            return Promise
+              .reject(new Error('Can\' disconnect the main provider'))
 
-        if (user.provider.toLowerCase() === params.strategy.toLowerCase())
-          return cb(new Error('Can\' disconnect the main provider'))
+          if (!user.additionalProvidersData ||
+              !user.additionalProvidersData[params.strategy])
+            return Promise.reject(new Error('User doesn\'t have this provider'))
 
-        if (!user.additionalProvidersData ||
-            !user.additionalProvidersData[params.strategy])
-          return cb(new Error('User doesn\'t have this provider'))
+          delete user.additionalProvidersData[params.strategy]
 
-        delete user.additionalProvidersData[params.strategy]
+          user.markModified('additionalProvidersData')
 
-        user.markModified('additionalProvidersData')
-
-        user.save(err => {
-          if (err) return cb(err)
-
-          return cb(null, user)
+          return user.save()
         })
-      })
     },
   })
 }

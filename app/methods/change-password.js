@@ -1,18 +1,8 @@
 'use strict'
 const joi = require('joi')
 
-function saveNewPassword(user, params, cb) {
-  user.setPassword(params.newPassword, function(err, user) {
-    if (err)
-      return cb(err)
-
-    user.save(function(err) {
-      if (err)
-        return cb(err)
-
-      return cb(err, user)
-    })
-  })
+function saveNewPassword(user, newPassword) {
+  return user.setPassword(newPassword).then(user => user.save())
 }
 
 module.exports = function(ms, opts) {
@@ -28,24 +18,19 @@ module.exports = function(ms, opts) {
         forceNewPassword: joi.bool(),
       },
     },
-    handler(params, cb) {
-      User.findById(params.userId, function(err, user) {
-        if (err)
-          return cb(err)
+    handler(params) {
+      return User.findById(params.userId)
+        .exec()
+        .then(user => {
+          if (!user)
+            return Promise.reject(new Error('User not found'))
 
-        if (!user)
-          return cb(new Error('User not found'))
+          if (params.forceNewPassword || typeof user.hash === 'undefined')
+            return saveNewPassword(user, params.newPassword)
 
-        if (params.forceNewPassword || typeof user.hash === 'undefined')
-          return saveNewPassword(user, params, cb)
-
-        user.authenticate(params.currentPassword, function(err, user) {
-          if (err || !user)
-            return cb(err, user)
-
-          return saveNewPassword(user, params, cb)
+          return user.authenticate(params.currentPassword)
+            .then(user => saveNewPassword(user, params.newPassword))
         })
-      })
     },
   })
 }

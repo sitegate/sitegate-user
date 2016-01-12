@@ -12,8 +12,8 @@ module.exports = function(service, opts) {
         password: joi.string().required(),
       },
     },
-    handler(params, cb) {
-      User.findOne({
+    handler(params) {
+      return User.findOne({
         $or: [
           {
             username: params.usernameOrEmail,
@@ -22,13 +22,13 @@ module.exports = function(service, opts) {
             email: params.usernameOrEmail,
           },
         ],
-      }, function(err, user) {
-        if (err) return cb(err, user)
-
+      })
+      .exec()
+      .then(user => {
         if (!user)
-          return cb(new Error('incorrectUsernameOrEmail'), user)
+          return Promise.reject(new Error('incorrectUsernameOrEmail'))
 
-        return user.authenticate(params.password, cb)
+        return user.authenticate(params.password)
       })
     },
   })

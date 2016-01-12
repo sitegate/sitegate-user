@@ -1,5 +1,4 @@
-'use strict';
-
+'use strict'
 const debug = require('debug')('sitegate:user')
 const mongoose = require('mongoose')
 
