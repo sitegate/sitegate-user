@@ -2,6 +2,9 @@
 const joi = require('joi')
 
 module.exports = function(ms, opts) {
+  let User = ms.plugins.models.User
+  let ClientClient = ms.plugins['jimbo-client'].client
+
   ms.method({
     name: 'getTrustedClients',
     config: {
@@ -9,22 +12,17 @@ module.exports = function(ms, opts) {
         userId: joi.string().required(),
       },
     },
-    handler(params, cb) {
-      ms.plugins.models.User.findById(params.userId, function(err, user) {
-        if (err) {
-          return cb(err)
-        }
+    handler(params) {
+      return User.findById(params.userId).exec()
+        .then(user => {
+          if (!user)
+            return Promise.reject(new Error('user not found'))
 
-        if (!user) {
-          return cb(new Error('user not found'))
-        }
+          if (!user.trustedClients || user.trustedClients.length === 0)
+            return Promise.resolve([])
 
-        if (!user.trustedClients || user.trustedClients.length === 0) {
-          return cb(null, [])
-        }
-
-        ms.plugins.client.query({ ids: user.trustedClients }, cb)
-      })
+          return ClientClient.query({ ids: user.trustedClients })
+        })
     },
   })
 }

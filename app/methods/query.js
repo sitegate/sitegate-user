@@ -2,6 +2,8 @@
 const joi = require('joi')
 
 module.exports = function(ms, opts) {
+  let User = ms.plugins.models.User
+
   ms.method({
     name: 'query',
     config: {
@@ -9,13 +11,13 @@ module.exports = function(ms, opts) {
         count: joi.number().required(),
       },
     },
-    handler(params, cb) {
+    handler(params) {
       params.fields = params.fields || []
 
-      ms.plugins.models.User
+      return User
         .find({}, params.fields.join(' '))
         .limit(params.count)
-        .exec(cb)
+        .exec()
     },
   })
 }

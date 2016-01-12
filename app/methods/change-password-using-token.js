@@ -13,41 +13,33 @@ module.exports = function(ms, opts) {
         newPassword: joi.string().required(),
       },
     },
-    handler(params, cb) {
-      User.findOne({
+    handler(params) {
+      return User.findOne({
         resetPasswordToken: params.token,
         resetPasswordExpires: {
           $gt: Date.now(),
         },
-      }, function(err, user) {
-        if (err)
-          return cb(err, null)
-
+      }).exec()
+      .then(user => {
         if (!user)
-          return cb(new Error('Invalid reset token'), null)
+          return Promise.reject(new Error('Invalid reset token'))
 
         user.resetPasswordToken = undefined
         user.resetPasswordExpires = undefined
 
-        user.setPassword(params.newPassword, function(err, user) {
-          if (err)
-            return cb(err, null)
+        return user.setPassword(params.newPassword)
+      })
+      .then(user => user.save())
+      .then(user => {
+        mailer.send({
+          templateName: 'reset-password-confirm-email',
+          to: user.email,
+          locals: {
+            username: user.username,
+          },
+        }, function() {})
 
-          user.save(function(err) {
-            if (err)
-              return cb(err, null)
-
-            mailer.send({
-              templateName: 'reset-password-confirm-email',
-              to: user.email,
-              locals: {
-                username: user.username,
-              },
-            }, function() {})
-
-            return cb(null, user)
-          })
-        })
+        return Promise.resolve(user)
       })
     },
   })

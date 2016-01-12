@@ -16,40 +16,31 @@ module.exports = function(ms, opts) {
         emailVerified: joi.bool(),
       },
     },
-    handler(params, cb) {
+    handler(params) {
       let user = new User(params)
 
-      User.findOne({
-        username: user.username,
-      }, function(err, existingUser) {
-        if (err) return cb(err)
-
-        if (existingUser) return cb(new Error('username already exists'))
-
-        User.findOne({
-          email: user.email,
-        }, function(err, existingUser) {
-          if (err) return cb(err)
-
+      return User.findOne({username: user.username}).exec()
+        .then(existingUser => {
           if (existingUser)
-            return cb(new Error('email already exists'))
+            return Promise.reject(new Error('username already exists'))
 
-          user.setPassword(params.password, function(err) {
-            if (err) return cb(err)
-
-            user.save(function(err) {
-              if (err) return cb(err)
-
-              if (!user.emailVerified)
-                ms.methods.sendVerificationEmail({
-                  userId: user._id,
-                }, function() {})
-
-              cb(null, user)
-            })
-          })
+          return User.findOne({email: user.email}).exec()
         })
-      })
+        .then(existingUser => {
+          if (existingUser)
+            return Promise.reject(new Error('email already exists'))
+
+          return user.setPassword(params.password)
+        })
+        .then(() => user.save())
+        .then(user => {
+          if (!user.emailVerified)
+            ms.methods.sendVerificationEmail({
+              userId: user._id,
+            }, function() {})
+
+          return Promise.resolve(user)
+        })
     },
   })
 }
