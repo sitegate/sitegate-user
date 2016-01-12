@@ -40,64 +40,62 @@ function createPossibleUsername(providerUserProfile) {
 module.exports = function(service, opts) {
   let User = service.plugins.models.User
 
-  function createUser(providerUserProfile, cb) {
+  function createUser(providerUserProfile) {
     let searchQuery = createQuery(providerUserProfile)
 
-    User.findOne(searchQuery, function(err, user) {
-      if (err) return cb(err)
+    return User.findOne(searchQuery).exec()
+      .then(user => {
+        if (user) return Promise.resolve(user)
 
-      if (user) return cb(err, user)
+        let possibleUsername = createPossibleUsername(providerUserProfile)
 
-      let possibleUsername = createPossibleUsername(providerUserProfile)
+        return User.findUniqueUsername(possibleUsername, null)
+          .then(availableUsername => {
+            let user = new User({
+              firstName: providerUserProfile.firstName,
+              lastName: providerUserProfile.lastName,
+              username: availableUsername,
+              displayName: providerUserProfile.displayName,
+              email: providerUserProfile.email,
+              emailVerified: true,
+              provider: providerUserProfile.provider,
+              providerData: providerUserProfile.providerData,
+            })
 
-      return User.findUniqueUsername(possibleUsername, null, function(availableUsername) {
-        let user = new User({
-          firstName: providerUserProfile.firstName,
-          lastName: providerUserProfile.lastName,
-          username: availableUsername,
-          displayName: providerUserProfile.displayName,
-          email: providerUserProfile.email,
-          emailVerified: true,
-          provider: providerUserProfile.provider,
-          providerData: providerUserProfile.providerData,
-        })
-
-        // And save the user
-        user.save(err => cb(err, user))
+            // And save the user
+            return user.save()
+          })
       })
-    })
   }
 
-  function extendUser(loggedUser, providerUserProfile, cb) {
+  function extendUser(loggedUser, providerUserProfile) {
     // User is already logged in, join the provider data to the existing user
-    User.findById(loggedUser.id, function(err, user) {
-      if (err)
-        return cb(err)
+    return User.findById(loggedUser.id).exec()
+      .then(user => {
+        if (!user)
+          return Promise.reject(new Error('Logged in user not found in the datastore'))
 
-      if (!user)
-        return cb(new Error('Logged in user not found in the datastore'))
+        // Check if user exists, is not signed in using this provider, and doesn't
+        // have that provider data already configured
+        if (!(user.provider !== providerUserProfile.provider &&
+          (!user.additionalProvidersData ||
+            !user.additionalProvidersData[providerUserProfile.provider]))) {
 
-      // Check if user exists, is not signed in using this provider, and doesn't
-      // have that provider data already configured
-      if (!(user.provider !== providerUserProfile.provider &&
-        (!user.additionalProvidersData ||
-          !user.additionalProvidersData[providerUserProfile.provider]))) {
+          return Promise.reject(new Error('User is already connected using this provider'), user)
+        }
 
-        return cb(new Error('User is already connected using this provider'), user)
-      }
+        // Add the provider data to the additional provider data field
+        if (!user.additionalProvidersData) {
+          user.additionalProvidersData = {}
+        }
+        user.additionalProvidersData[providerUserProfile.provider] = providerUserProfile.providerData
 
-      // Add the provider data to the additional provider data field
-      if (!user.additionalProvidersData) {
-        user.additionalProvidersData = {}
-      }
-      user.additionalProvidersData[providerUserProfile.provider] = providerUserProfile.providerData
+        // Then tell mongoose that we've updated the additionalProvidersData field
+        user.markModified('additionalProvidersData')
 
-      // Then tell mongoose that we've updated the additionalProvidersData field
-      user.markModified('additionalProvidersData')
-
-      // And save the user
-      user.save(err => cb(err, user/*, '/settings/accounts'*/))
-    })
+        // And save the user
+        return user.save()
+      })
   }
 
   service.method({
@@ -119,14 +117,14 @@ module.exports = function(service, opts) {
         },
       },
     },
-    handler(params, cb) {
+    handler(params) {
       let providerUserProfile = params.providerUserProfile
       let loggedUser = params.loggedUser
 
       if (loggedUser)
-        return extendUser(loggedUser, providerUserProfile, cb)
+        return extendUser(loggedUser, providerUserProfile)
 
-      return createUser(providerUserProfile, cb)
+      return createUser(providerUserProfile)
     },
   })
 }

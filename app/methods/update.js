@@ -16,50 +16,47 @@ module.exports = function(ms, opts) {
         role: joi.string(),
       },
     },
-    handler(params, cb) {
-      User.findById(params.id, function(err, user) {
-        if (err)
-          return cb(err)
+    handler(params) {
+      let sendVerificationEmail
+      let emailHasBeenUpdated
 
-        if (!user)
-          return cb(new Error('userNotFound'))
+      return User.findById(params.id).exec()
+        .then(user => {
+          if (!user)
+            return Promise.reject(new Error('userNotFound'))
 
-        user.username = params.username || user.username
+          user.username = params.username || user.username
 
-        let newEmail = params.email ? params.email.toLowerCase() : null
-        let sendVerificationEmail
-        let emailHasBeenUpdated
+          let newEmail = params.email ? params.email.toLowerCase() : null
 
-        if (typeof params.emailVerified === 'boolean') {
-          user.emailVerified = params.emailVerified
-        } else {
-          emailHasBeenUpdated = newEmail && (newEmail !== user.email)
-          sendVerificationEmail = emailHasBeenUpdated
+          if (typeof params.emailVerified === 'boolean') {
+            user.emailVerified = params.emailVerified
+          } else {
+            emailHasBeenUpdated = newEmail && (newEmail !== user.email)
+            sendVerificationEmail = emailHasBeenUpdated
 
-          if (emailHasBeenUpdated) {
-            user.emailVerified = false
+            if (emailHasBeenUpdated) {
+              user.emailVerified = false
+            }
           }
-        }
 
-        user.email = newEmail
-        user.role = params.role || user.role
+          user.email = newEmail
+          user.role = params.role || user.role
 
-        user.save(function(err, user) {
-          if (err)
-            return cb(err, null)
-
+          return user.save()
+        })
+        .then(user => {
           if (sendVerificationEmail) {
             ms.methods.sendVerificationEmail({
               userId: user.id,
             })
           }
 
-          return cb(err, {
+          return Promise.resolve({
             user,
             emailHasBeenUpdated,
           })
         })
-      })
     },
   })
 }

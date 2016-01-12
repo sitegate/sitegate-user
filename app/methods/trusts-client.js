@@ -12,16 +12,14 @@ module.exports = function(ms, opts) {
         clientId: joi.string().required(),
       },
     },
-    handler(params, cb) {
-      User.findById(params.userId, (err, user) => {
-        if (err)
-          return cb(err)
+    handler(params) {
+      return User.findById(params.userId).exec()
+        .then(user => {
+          if (!user)
+            return Promise.reject(new Error('User not found'))
 
-        if (!user)
-          return cb(new Error('User not found'))
-
-        cb(null, user.trusts(params.clientId))
-      })
+          return Promise.resolve(user.trusts(params.clientId))
+        })
     },
   })
 }

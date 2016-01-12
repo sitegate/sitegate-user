@@ -39,7 +39,7 @@ describe('saveOAuthUserProfile', function() {
   })
   afterEach(mongotest.disconnect());
 
-  it('should create new account for new user', function(done) {
+  it('should create new account for new user', function() {
     return this._server
       .register([
         {
@@ -63,7 +63,6 @@ describe('saveOAuthUserProfile', function() {
       .then(user => {
         expect(user).to.exist
         expect(user.id).to.exist
-        done()
       })
   })
 

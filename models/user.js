@@ -111,19 +111,19 @@ let UserSchema = new Schema({
 /**
  * Find possible not used username
  */
-UserSchema.statics.findUniqueUsername = function(username, suffix, cb) {
+UserSchema.statics.findUniqueUsername = thenify(function(username, suffix, cb) {
   let possibleUsername = username + (suffix || '')
 
   this.findOne({
     username: possibleUsername,
   }, (err, user) => {
-    if (err) return cb(null)
+    if (err) return cb(err)
 
-    if (!user) return cb(possibleUsername)
+    if (!user) return cb(null, possibleUsername)
 
     return this.findUniqueUsername(username, (suffix || 0) + 1, cb)
   })
-}
+})
 
 UserSchema.methods.trusts = function(clientId) {
   return this.trustedClients && this.trustedClients.indexOf(clientId) !== -1
