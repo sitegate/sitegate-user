@@ -12,22 +12,17 @@ module.exports = function(ms, opts) {
         clientId: joi.string().required(),
       },
     },
-    handler(params, cb) {
-      User.findById(params.userId, function(err, user) {
-        if (err) {
-          return cb(err)
-        }
+    handler(params) {
+      return User.findById(params.userId)
+        .then(user => {
+          if (!user) {
+            return Promise.reject(new Error('User not found'))
+          }
 
-        if (!user) {
-          return cb(new Error('User not found'))
-        }
-
-        // TODO: check if client exists?
-        user.trustedClients.push(params.clientId)
-        user.save(function(err, user) {
-          return cb(err, user)
+          // TODO: check if client exists?
+          user.trustedClients.push(params.clientId)
+          return user.save()
         })
-      })
     },
   })
 }

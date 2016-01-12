@@ -54,7 +54,7 @@ describe('validateResetToken', function() {
       .then(() => this._server.methods.validateResetToken({
         token: fakeUser.resetPasswordToken,
       }))
-    expect(result).to.eventually.eq(null).notify(done)
+    expect(result).to.be.fulfilled.notify(done)
   })
 
   it('should fail if reset token expired', function(done) {

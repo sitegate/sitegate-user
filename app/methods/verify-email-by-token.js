@@ -11,27 +11,22 @@ module.exports = function(ms, opts) {
         token: joi.string().required(),
       },
     },
-    handler(params, cb) {
-      User.findOne({
-        emailVerificationToken: params.token,
-      }, function(err, user) {
-        if (err) return cb(err)
+    handler(params) {
+      return User.findOne({
+          emailVerificationToken: params.token,
+        }).exec()
+        .then(user => {
+          if (!user)
+            return Promise.reject(new Error('Invalid email verification token'))
 
-        if (!user)
-          return cb(new Error('Invalid email verification token'), null)
+          if (user.emailVerificationTokenExpires < Date.now())
+            return Promise.reject(new Error('Email verification token expired'))
 
-        if (user.emailVerificationTokenExpires < Date.now())
-          return cb(new Error('Email verification token expired'))
+          user.emailVerified = true
+          user.emailVerificationToken = null
 
-        user.emailVerified = true
-        user.emailVerificationToken = null
-
-        user.save(function(err) {
-          if (err) return cb(err)
-
-          return cb(null, user)
+          return user.save()
         })
-      })
     },
   })
 }
