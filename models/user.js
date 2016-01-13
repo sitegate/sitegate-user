@@ -1,9 +1,5 @@
 'use strict'
 const thenify = require('thenify').withCallback
-
-/**
- * Module dependencies.
- */
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const crypto = require('crypto')
@@ -136,61 +132,56 @@ UserSchema.pre('save', function(next) {
   next()
 })
 
-UserSchema.methods.setPassword = thenify(function(password, cb) {
-  if (!password) cb(new Error('Password argument not set!'))
+UserSchema.methods.setPassword = function(password) {
+  if (!password)
+    return Promise.reject(new Error('Password argument not set!'))
 
-  crypto.randomBytes(SALTLEN, (err, buf) => {
-    if (err) return cb(err)
-
-    let salt = buf.toString(ENCODING)
-
-    crypto.pbkdf2(password, salt, ITERATIONS, KEYLEN, (err, hashRaw) => {
-      if (err) return cb(err)
-
+  let salt
+  return thenify(crypto.randomBytes)(SALTLEN)
+    .then(buf => {
+      salt = buf.toString(ENCODING)
+      return thenify(crypto.pbkdf2)(password, salt, ITERATIONS, KEYLEN)
+    })
+    .then(hashRaw => {
       this.hash = new Buffer(hashRaw, 'binary').toString(ENCODING)
       this.salt = salt
 
-      cb(null, this)
+      return Promise.resolve(this)
     })
-  })
-})
+}
 
-UserSchema.methods.authenticate = thenify(function(password, cb) {
+UserSchema.methods.authenticate = function(password) {
   let attemptsInterval = Math.pow(INTERVAL, Math.log(this.attempts + 1))
   let calculatedInterval = Math.min(attemptsInterval, MAX_INTERVAL)
 
   if (Date.now() - this.last < calculatedInterval) {
     this.last = Date.now()
     this.save()
-    return cb(new Error('Login attempted too soon after previous attempt'), null)
+    return Promise.reject(new Error('Login attempted too soon after previous attempt'))
   }
 
   if (!this.salt) {
-    return cb(new Error('Authentication not possible. No salt value stored in mongodb collection!'), false)
+    return Promise.reject(new Error('Authentication not possible. No salt value stored in mongodb collection!'))
   }
 
-  crypto.pbkdf2(password, this.salt, ITERATIONS, KEYLEN, function(err, hashRaw) {
-    if (err) {
-      return cb(err)
-    }
+  return thenify(crypto.pbkdf2)(password, this.salt, ITERATIONS, KEYLEN)
+    .then(hashRaw => {
+      let hash = new Buffer(hashRaw, 'binary').toString(ENCODING)
 
-    let hash = new Buffer(hashRaw, 'binary').toString(ENCODING)
+      if (hash === this.hash) {
+        this.last = Date.now()
+        this.attempts = 0
+        this.save()
 
-    if (hash === this.hash) {
+        return Promise.resolve(this)
+      }
 
       this.last = Date.now()
-      this.attempts = 0
+      this.attempts++
       this.save()
-
-      return cb(null, this)
-    }
-
-    this.last = Date.now()
-    this.attempts++
-    this.save()
-    return cb(new Error('Incorrect password'), null)
-  }.bind(this))
-})
+      return Promise.reject(new Error('Incorrect password'))
+    })
+}
 
 UserSchema.set('toJSON', {
   transform(doc, ret, options) {

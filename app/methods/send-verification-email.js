@@ -1,6 +1,7 @@
 'use strict'
 const joi = require('joi')
 const crypto = require('crypto')
+const thenify = require('thenify')
 
 const ONE_DAY = 1000 * 60 * 60 * 24
 
@@ -15,17 +16,14 @@ module.exports = function(ms, opts) {
         userId: joi.string().required(),
       },
     },
-    handler(params, cb) {
-      User.findById(params.userId, function(err, user) {
-        if (err) {
-          return cb(err, null)
-        }
-
-        crypto.randomBytes(20, function(err, buffer) {
-          if (err) {
-            return cb(err, null)
-          }
-
+    handler(params) {
+      let user
+      return User.findById(params.userId).exec()
+        .then(usr => {
+          user = usr
+          return thenify(crypto.randomBytes)(20)
+        })
+        .then(buffer => {
           let token = buffer.toString('hex')
 
           user.emailVerified = false
@@ -33,24 +31,20 @@ module.exports = function(ms, opts) {
 
           user.emailVerificationTokenExpires = Date.now() + ONE_DAY
 
-          user.save(function(err, user) {
-            if (err) {
-              return cb(err, null)
-            }
-
-            mailer.send({
-              templateName: 'email-verification-email',
-              to: user.email,
-              locals: {
-                username: user.username,
-                token: user.emailVerificationToken,
-              },
-            }, function() {})
-
-            return cb(null, null)
-          })
+          return user.save()
         })
-      })
+        .then(user => {
+          mailer.send({
+            templateName: 'email-verification-email',
+            to: user.email,
+            locals: {
+              username: user.username,
+              token: user.emailVerificationToken,
+            },
+          }, function() {})
+
+          return Promise.resolve()
+        })
     },
   })
 }

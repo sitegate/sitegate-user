@@ -1,40 +1,13 @@
 'use strict'
 const joi = require('joi')
 const crypto = require('crypto')
+const thenify = require('thenify')
 
 const ONE_HOUR = 3600000
 
 module.exports = function(ms, opts) {
   let User = ms.plugins.models.User
   let mailer = ms.plugins.mailer
-
-  function sendPasswordResetEmail(user, cb) {
-    crypto.randomBytes(20, function(err, buffer) {
-      if (err) {
-        return cb(err, null)
-      }
-
-      let token = buffer.toString('hex')
-
-      user.resetPasswordToken = token
-      user.resetPasswordExpires = Date.now() + ONE_HOUR
-
-      user.save(function(err, user) {
-        if (err) {
-          return cb(err, null)
-        }
-
-        mailer.send({
-          templateName: 'reset-password-email',
-          to: user.email,
-          locals: {
-            username: user.username,
-            token: user.resetPasswordToken,
-          },
-        }, cb)
-      })
-    })
-  }
 
   ms.method({
     name: 'requestPasswordChangeByEmail',
@@ -43,20 +16,34 @@ module.exports = function(ms, opts) {
         email: joi.string().required(),
       },
     },
-    handler(params, cb) {
-      User.findOne({
-        email: params.email.toLowerCase(),
-      }, function(err, user) {
-        if (err) {
-          return cb(err, null)
-        }
+    handler(params) {
+      let user
 
-        if (!user) {
-          return cb(new Error('There is no user with such email in our system'), null)
-        }
+      return User.findOne({email: params.email.toLowerCase()}).exec()
+        .then(usr => {
+          user = usr
+          if (!usr)
+            return Promise.reject(new Error('There is no user with such email in our system'))
 
-        return sendPasswordResetEmail(user, cb)
-      })
+          return thenify(crypto.randomBytes)(20)
+        })
+        .then(buffer => {
+          let token = buffer.toString('hex')
+
+          user.resetPasswordToken = token
+          user.resetPasswordExpires = Date.now() + ONE_HOUR
+
+          return user.save()
+        })
+        .then(user => mailer.send({
+            templateName: 'reset-password-email',
+            to: user.email,
+            locals: {
+              username: user.username,
+              token: user.resetPasswordToken,
+            },
+          })
+        )
     },
   })
 }

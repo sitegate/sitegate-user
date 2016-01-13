@@ -42,7 +42,7 @@ describe('authenticate', function() {
 
   this.timeout(6000)
 
-  it('should authenticate user with correct credentials by username', function(done) {
+  it('should authenticate user with correct credentials by username', function() {
     return this._server
       .register([
         {
@@ -59,11 +59,10 @@ describe('authenticate', function() {
       .then(user => {
         expect(user).to.exist
         expect(user.id).to.exist
-        done()
       })
   })
 
-  it('should authenticate user with correct credentials by email', function(done) {
+  it('should authenticate user with correct credentials by email', function() {
     return this._server
       .register([
         {
@@ -80,7 +79,6 @@ describe('authenticate', function() {
       .then(user => {
         expect(user).to.exist
         expect(user.id).to.exist
-        done()
       })
   })
 
