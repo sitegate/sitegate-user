@@ -18,7 +18,7 @@ module.exports = function(ms, opts) {
     },
     handler(params) {
       let user
-      return User.findById(params.userId).exec()
+      return ms.methods.getById({id: params.userId})
         .then(usr => {
           user = usr
           return thenify(crypto.randomBytes)(20)

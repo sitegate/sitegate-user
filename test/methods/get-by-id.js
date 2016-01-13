@@ -55,8 +55,8 @@ describe('getById', function() {
       })
   })
 
-  it('should not return user if there is no one', function() {
-    return this._server
+  it('should not return user if there is no one', function(done) {
+    let result = this._server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -68,8 +68,7 @@ describe('getById', function() {
       .then(() => this._server.methods.getById({
         id: '507f191e810c19729de860ea',
       }))
-      .then(user => {
-        expect(user).to.not.exist
-      })
+
+    expect(result).to.be.rejectedWith(Error, 'User not found').notify(done)
   })
 })

@@ -16,9 +16,6 @@ module.exports = function(ms, opts) {
           id: params.userId,
         })
         .then(user => {
-          if (!user)
-            return Promise.reject(new Error('user not found'))
-
           if (!user.trustedClients || user.trustedClients.length === 0)
             return Promise.resolve([])
 

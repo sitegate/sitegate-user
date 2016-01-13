@@ -70,11 +70,8 @@ module.exports = function(service, opts) {
 
   function extendUser(loggedUser, providerUserProfile) {
     // User is already logged in, join the provider data to the existing user
-    return User.findById(loggedUser.id).exec()
+    return service.methods.getById({id: loggedUser.id})
       .then(user => {
-        if (!user)
-          return Promise.reject(new Error('Logged in user not found in the datastore'))
-
         // Check if user exists, is not signed in using this provider, and doesn't
         // have that provider data already configured
         if (!(user.provider !== providerUserProfile.provider &&

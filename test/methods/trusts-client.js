@@ -6,6 +6,7 @@ const mongotest = require('./mongotest')
 const jimbo = require('jimbo')
 const modelsPlugin = require('../../models')
 const helpers = require('./helpers')
+const getById = require('../../app/methods/get-by-id')
 const trustsClient = require('../../app/methods/trusts-client')
 const R = require('ramda')
 
@@ -31,6 +32,9 @@ describe('trustsClient', function() {
         options: {
           mongoURI: MONGO_URI,
         },
+      },
+      {
+        register: getById,
       },
     ], err => next(err))
   })

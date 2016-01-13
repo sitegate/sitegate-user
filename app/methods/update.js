@@ -20,11 +20,8 @@ module.exports = function(ms, opts) {
       let sendVerificationEmail
       let emailHasBeenUpdated
 
-      return User.findById(params.id).exec()
+      return ms.methods.getById({id: params.id})
         .then(user => {
-          if (!user)
-            return Promise.reject(new Error('userNotFound'))
-
           user.username = params.username || user.username
 
           let newEmail = params.email ? params.email.toLowerCase() : null

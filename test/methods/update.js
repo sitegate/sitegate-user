@@ -4,6 +4,7 @@ const chai = require('chai')
 const expect = chai.expect
 const mongotest = require('./mongotest')
 const jimbo = require('jimbo')
+const getById = require('../../app/methods/get-by-id')
 const update = require('../../app/methods/update')
 const modelsPlugin = require('../../models')
 const helpers = require('./helpers')
@@ -39,6 +40,9 @@ describe('update', function() {
         options: {
           mongoURI: MONGO_URI,
         },
+      },
+      {
+        register: getById,
       },
     ], err => next(err))
   })

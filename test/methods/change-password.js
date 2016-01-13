@@ -6,6 +6,7 @@ const mongotest = require('./mongotest')
 const jimbo = require('jimbo')
 const modelsPlugin = require('../../models')
 const helpers = require('./helpers')
+const getById = require('../../app/methods/get-by-id')
 const changePassword = require('../../app/methods/change-password')
 const R = require('ramda')
 
@@ -34,6 +35,9 @@ describe('changePassword', function() {
         options: {
           mongoURI: MONGO_URI,
         },
+      },
+      {
+        register: getById,
       },
     ], err => next(err))
   })

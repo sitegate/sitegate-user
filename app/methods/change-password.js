@@ -19,12 +19,8 @@ module.exports = function(ms, opts) {
       },
     },
     handler(params) {
-      return User.findById(params.userId)
-        .exec()
+      return ms.methods.getById({id: params.userId})
         .then(user => {
-          if (!user)
-            return Promise.reject(new Error('User not found'))
-
           if (params.forceNewPassword || typeof user.hash === 'undefined')
             return saveNewPassword(user, params.newPassword)
 

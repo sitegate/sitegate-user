@@ -13,12 +13,8 @@ module.exports = function(ms, opts) {
       },
     },
     handler(params) {
-      return User.findById(params.userId)
+      return ms.methods.getById({id: params.userId})
         .then(user => {
-          if (!user) {
-            return Promise.reject(new Error('User not found'))
-          }
-
           // TODO: check if client exists?
           user.trustedClients.push(params.clientId)
           return user.save()

@@ -16,6 +16,8 @@ module.exports = function(ms, opts) {
       options.fields = options.fields || []
 
       return User.findById(params.id, options.fields.join(' ')).exec()
+        .then(user => user ?
+          Promise.resolve(user) : Promise.reject(new Error('User not found')))
     },
   });
 }
