@@ -2,7 +2,6 @@
 const joi = require('joi')
 
 module.exports = function(ms, opts) {
-  let User = ms.plugins.models.User
   let ClientClient = ms.plugins['jimbo-client'].client
 
   ms.method({
@@ -13,7 +12,9 @@ module.exports = function(ms, opts) {
       },
     },
     handler(params) {
-      return User.findById(params.userId).exec()
+      return ms.methods.getById({
+          id: params.userId,
+        })
         .then(user => {
           if (!user)
             return Promise.reject(new Error('user not found'))

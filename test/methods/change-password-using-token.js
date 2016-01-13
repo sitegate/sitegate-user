@@ -23,7 +23,7 @@ let fakeUser = {
   password: '1jf20dW34',
 }
 
-describe.only('changePasswordUsingToken', function() {
+describe('changePasswordUsingToken', function() {
   beforeEach(mongotest.prepareDb(MONGO_URI));
   beforeEach(function(next) {
     this._server = new jimbo.Server()
