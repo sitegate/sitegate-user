@@ -41,7 +41,7 @@ module.exports = function(ms, opts) {
               username: user.username,
               token: user.emailVerificationToken,
             },
-          }, function() {})
+          })
 
           return Promise.resolve()
         })
