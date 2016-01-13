@@ -40,7 +40,7 @@ describe('revokeAllClientsAccess', function() {
   })
   afterEach(mongotest.disconnect());
 
-  it('should revoke client access if it is trusted by the user', function() {
+  it('should revoke all clients access of a user', function() {
     return this._server
       .register([
         {

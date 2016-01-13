@@ -1,2 +1,62 @@
 'use strict'
+const chaiAsPromised = require('chai-as-promised')
+const chai = require('chai')
+const expect = chai.expect
+const mongotest = require('./mongotest')
+const jimbo = require('jimbo')
+const modelsPlugin = require('../../models')
+const helpers = require('./helpers')
+const getById = require('../../app/methods/get-by-id')
 const trustClient = require('../../app/methods/trust-client')
+const R = require('ramda')
+
+chai.use(chaiAsPromised)
+
+const MONGO_URI = 'mongodb://localhost/sitegate-user-tests'
+
+let fakeUser = {
+  username: 'sherlock',
+  email: 'sherlock@holmes.uk',
+  password: '123456',
+  provider: 'local',
+}
+
+describe('trustClient', function() {
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function(next) {
+    this._server = new jimbo.Server()
+
+    this._server.register([
+      {
+        register: modelsPlugin,
+        options: {
+          mongoURI: MONGO_URI,
+        },
+      },
+      {
+        register: getById,
+      },
+    ], err => next(err))
+  })
+  afterEach(mongotest.disconnect());
+
+  it('should return true if user trusts the client', function() {
+    let trustedClientId = '507f191e810c19929de860ea'
+    return this._server
+      .register([
+        {
+          register: helpers.userCreator(fakeUser),
+        },
+        {
+          register: trustClient,
+        },
+      ])
+      .then(() => this._server.methods.trustClient({
+        userId: this._server.fakeUser.id,
+        clientId: trustedClientId,
+      }))
+      .then(user => {
+        expect(user.trustedClients.length).to.eq(1)
+      })
+  })
+})
