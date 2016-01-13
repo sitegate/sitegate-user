@@ -7,7 +7,7 @@ const ONE_HOUR = 3600000
 
 module.exports = function(ms, opts) {
   let User = ms.plugins.models.User
-  let mailer = ms.plugins.mailer
+  let mailer = ms.plugins['jimbo-client'].mailer
 
   ms.method({
     name: 'requestPasswordChangeByEmail',
