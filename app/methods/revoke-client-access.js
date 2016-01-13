@@ -15,13 +15,15 @@ module.exports = function(ms, opts) {
     handler(params) {
       return ms.methods.getById({id: params.userId})
         .then(user => {
-          if (!user) return Promise.reject(new Error('User not found'))
+          let clientIndex = user.trustedClients.indexOf(params.clientId)
 
-          user.trustedClients
-            .splice(user.trustedClients.indexOf(params.clientId), 1)
+          if (clientIndex === -1)
+            return Promise.reject(new Error('Client does\'t have access already'))
+
+          user.trustedClients.splice(clientIndex, 1)
 
           return user.save()
-        });
+        })
     },
   })
 }
