@@ -22,7 +22,7 @@ module.exports = function(ms, opts) {
           if (user.resetPasswordExpires < Date.now())
             return Promise.reject(new Error('Reset token expired'))
 
-          return Promise.resolve()
+          return Promise.resolve(user)
         })
     },
   })

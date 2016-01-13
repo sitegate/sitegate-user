@@ -3,7 +3,7 @@ const joi = require('joi')
 
 module.exports = function(ms, opts) {
   let User = ms.plugins.models.User
-  let mailer = ms.plugins.mailer
+  let mailer = ms.plugins['jimbo-client'].mailer
 
   ms.method({
     name: 'changePasswordUsingToken',
@@ -14,16 +14,10 @@ module.exports = function(ms, opts) {
       },
     },
     handler(params) {
-      return User.findOne({
-        resetPasswordToken: params.token,
-        resetPasswordExpires: {
-          $gt: Date.now(),
-        },
-      }).exec()
+      return ms.methods.validateResetToken({
+        token: params.token,
+      })
       .then(user => {
-        if (!user)
-          return Promise.reject(new Error('Invalid reset token'))
-
         user.resetPasswordToken = undefined
         user.resetPasswordExpires = undefined
 

@@ -7,7 +7,7 @@ const ONE_DAY = 1000 * 60 * 60 * 24
 
 module.exports = function(ms, opts) {
   let User = ms.plugins.models.User
-  let mailer = ms.plugins.mailer
+  let mailer = ms.plugins['jimbo-client'].mailer
 
   ms.method({
     name: 'sendVerificationEmail',
