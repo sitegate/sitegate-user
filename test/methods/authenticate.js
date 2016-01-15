@@ -9,10 +9,9 @@ const helpers = require('./helpers')
 const authenticate = require('../../app/methods/authenticate')
 const R = require('ramda')
 const plugiator = require('plugiator')
+const config = require('../../config')
 
 chai.use(chaiAsPromised)
-
-const MONGO_URI = 'mongodb://localhost/sitegate-user-tests'
 
 let fakeUser = {
   username: 'sherlock',
@@ -25,7 +24,7 @@ let fakeUser = {
 }
 
 describe('authenticate', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(mongotest.prepareDb(config.get('mongodbURI')));
   beforeEach(function(next) {
     this._server = new jimbo.Server()
 
@@ -33,7 +32,7 @@ describe('authenticate', function() {
       {
         register: modelsPlugin,
         options: {
-          mongoURI: MONGO_URI,
+          mongoURI: config.get('mongodbURI'),
         },
       },
     ], err => next(err))
