@@ -22,11 +22,13 @@ let fakeUser = {
 }
 
 describe('trustsClient', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function() {
+    server = jimbo()
+
+    return server.register([
       {
         register: modelsPlugin,
         options: {
@@ -36,13 +38,13 @@ describe('trustsClient', function() {
       {
         register: getById,
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
   it('should return true if user trusts the client', function() {
     let trustedClientId = '507f191e810c19929de860ea'
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
@@ -53,8 +55,8 @@ describe('trustsClient', function() {
           register: trustsClient,
         },
       ])
-      .then(() => this._server.methods.trustsClient({
-        userId: this._server.fakeUser.id,
+      .then(() => server.methods.trustsClient({
+        userId: server.fakeUser.id,
         clientId: trustedClientId,
       }))
       .then(trusts => {
@@ -63,7 +65,7 @@ describe('trustsClient', function() {
   })
 
   it('should return false if user doesn\'t trust the client', function() {
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
@@ -74,8 +76,8 @@ describe('trustsClient', function() {
           register: trustsClient,
         },
       ])
-      .then(() => this._server.methods.trustsClient({
-        userId: this._server.fakeUser.id,
+      .then(() => server.methods.trustsClient({
+        userId: server.fakeUser.id,
         clientId: '507f191e810c19929de860ea',
       }))
       .then(trusts => {

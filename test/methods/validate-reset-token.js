@@ -24,23 +24,25 @@ let fakeUser = {
 }
 
 describe('validateResetToken', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function() {
+    server = jimbo()
+
+    return server.register([
       {
         register: modelsPlugin,
         options: {
           mongoURI: MONGO_URI,
         },
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
   it('should reset password if valid params passed', function(done) {
-    let result = this._server
+    let result = server
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
@@ -51,14 +53,14 @@ describe('validateResetToken', function() {
           register: validateResetToken,
         },
       ])
-      .then(() => this._server.methods.validateResetToken({
+      .then(() => server.methods.validateResetToken({
         token: fakeUser.resetPasswordToken,
       }))
     expect(result).to.be.fulfilled.notify(done)
   })
 
   it('should fail if reset token expired', function(done) {
-    let result = this._server
+    let result = server
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
@@ -69,14 +71,14 @@ describe('validateResetToken', function() {
           register: validateResetToken,
         },
       ])
-      .then(() => this._server.methods.validateResetToken({
+      .then(() => server.methods.validateResetToken({
         token: fakeUser.resetPasswordToken,
       }))
     expect(result).to.be.rejectedWith(Error, 'Reset token expired').notify(done)
   })
 
   it('should fail if reset token doesn\'t exist', function(done) {
-    let result = this._server
+    let result = server
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
@@ -87,7 +89,7 @@ describe('validateResetToken', function() {
           register: validateResetToken,
         },
       ])
-      .then(() => this._server.methods.validateResetToken({
+      .then(() => server.methods.validateResetToken({
         token: 'this token doesn\'t exist',
       }))
     expect(result).to.be.rejectedWith(Error, 'Invalid reset token').notify(done)

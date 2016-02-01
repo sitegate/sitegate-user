@@ -2,7 +2,7 @@
 const joi = require('joi')
 
 module.exports = function(ms, opts) {
-  let ClientClient = ms.plugins['jimbo-client'].client
+  let ClientClient = ms.plugins.jimboClient.client
 
   ms.method({
     name: 'getTrustedClients',

@@ -21,23 +21,25 @@ let fakeUser = {
 }
 
 describe('getByUsername', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function() {
+    server = jimbo()
+
+    return server.register([
       {
         register: modelsPlugin,
         options: {
           mongoURI: MONGO_URI,
         },
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
   it('should get existing user by username', function() {
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -46,8 +48,8 @@ describe('getByUsername', function() {
           register: getByUsername,
         },
       ])
-      .then(() => this._server.methods.getByUsername({
-        username: this._server.fakeUser.username,
+      .then(() => server.methods.getByUsername({
+        username: server.fakeUser.username,
       }))
       .then(user => {
         expect(user).to.exist
@@ -56,7 +58,7 @@ describe('getByUsername', function() {
   })
 
   it('should not return user if there is no one', function() {
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -65,7 +67,7 @@ describe('getByUsername', function() {
           register: getByUsername,
         },
       ])
-      .then(() => this._server.methods.getByUsername({
+      .then(() => server.methods.getByUsername({
         username: 'not-exists',
       }))
       .then(user => {

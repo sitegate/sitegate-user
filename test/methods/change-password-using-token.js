@@ -24,18 +24,20 @@ let fakeUser = {
 }
 
 describe('changePasswordUsingToken', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function() {
+    server = jimbo()
+
+    return server.register([
       {
         register: modelsPlugin,
         options: {
           mongoURI: MONGO_URI,
         },
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
@@ -43,7 +45,7 @@ describe('changePasswordUsingToken', function() {
 
   it('should change password when correct reset token passed', function() {
     let newPassword = 'J7W&92+xc:;d-a,'
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
@@ -65,8 +67,8 @@ describe('changePasswordUsingToken', function() {
           register: changePasswordUsingToken,
         },
       ])
-      .then(() => this._server.methods.changePasswordUsingToken({
-        token: this._server.fakeUser.resetPasswordToken,
+      .then(() => server.methods.changePasswordUsingToken({
+        token: server.fakeUser.resetPasswordToken,
         newPassword,
       }))
       .then(user => {

@@ -1,13 +1,11 @@
 'use strict'
+module.exports = function(service, opts) {
+  if (!opts.amqpURL) throw new Error('amqpURL is required')
 
-module.exports = function(service, opts, next) {
-  if (!opts.amqpURL)
-    return next(new Error('amqpURL is required'))
-
-  service.client({
+  return service.client({
     name: 'mailer',
     channel: 'sitegate-mailer',
-    url: opts.amqpURL,
+    amqpURL: opts.amqpURL,
     methods: [
       'create',
       'getById',
@@ -18,8 +16,6 @@ module.exports = function(service, opts, next) {
       'update',
     ],
   })
-
-  next()
 }
 
 module.exports.attributes = {

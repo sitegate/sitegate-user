@@ -2,11 +2,11 @@
 const config = require('./config')
 const jimbo = require('jimbo')
 
-let server = new jimbo.Server()
+let server = jimbo()
 
 server.connection({
   channel: 'sitegate-user',
-  url: config.get('amqpURI'),
+  amqpURL: config.get('amqpURI'),
 })
 
 server.register([
@@ -85,8 +85,7 @@ server.register([
   {
     register: require('./app/methods/verify-email-by-token'),
   },
-], err => {
-  if (err) throw err
-
-  server.start(() => console.log('Service started'))
-})
+])
+.then(() => server.start())
+.then(() => console.log('Service started'))
+.catch(err => console.error(err))

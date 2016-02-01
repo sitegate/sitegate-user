@@ -39,23 +39,25 @@ let fakeUser = {
 let fakeUserPlugin = helpers.userCreator(fakeUser)
 
 describe('register', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function() {
+    server = jimbo()
+
+    return server.register([
       {
         register: modelsPlugin,
         options: {
           mongoURI: MONGO_URI,
         },
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
   it('should register user', function() {
-    return this._server
+    return server
       .register([
         {
           register: sendVerificationEmail,
@@ -64,7 +66,7 @@ describe('register', function() {
           register: registerPlugin,
         },
       ])
-      .then(() => this._server.methods
+      .then(() => server.methods
         .register({
           username: 'john.doe',
           email: 'some.email@gmail.com',
@@ -80,7 +82,7 @@ describe('register', function() {
   })
 
   it('should return error if username already exists', function(done) {
-    let result = this._server
+    let result = server
       .register([
         fakeUserPlugin,
         {
@@ -90,7 +92,7 @@ describe('register', function() {
           register: registerPlugin,
         },
       ])
-      .then(() => this._server.methods
+      .then(() => server.methods
         .register({
           username: fakeUser.username,
           email: 'some.email@gmail.com',
@@ -105,7 +107,7 @@ describe('register', function() {
   })
 
   it('should return error if email already exists', function(done) {
-    let result = this._server
+    let result = server
       .register([
         fakeUserPlugin,
         {
@@ -115,7 +117,7 @@ describe('register', function() {
           register: registerPlugin,
         },
       ])
-      .then(() => this._server.methods
+      .then(() => server.methods
         .register({
           username: 'john.doe',
           email: fakeUser.email,

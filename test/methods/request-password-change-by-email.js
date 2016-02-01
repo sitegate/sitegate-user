@@ -25,29 +25,31 @@ let fakeUser = {
 let fakeUserPlugin = helpers.userCreator(fakeUser)
 
 describe('requestPasswordChangeByEmail', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function() {
+    server = jimbo()
+
+    return server.register([
       {
         register: modelsPlugin,
         options: {
           mongoURI: MONGO_URI,
         },
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
   it('should throw error if no user with the passed email exists', function(done) {
-    let result = this._server
+    let result = server
       .register([
         {
           register: requestPasswordChangeByEmail,
         },
       ])
-      .then(() => this._server.methods
+      .then(() => server.methods
         .requestPasswordChangeByEmail({
           email: 'not-exists@gmail.com',
         }))
@@ -56,7 +58,7 @@ describe('requestPasswordChangeByEmail', function() {
   })
 
   it('should send email if account exists', function() {
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -75,8 +77,8 @@ describe('requestPasswordChangeByEmail', function() {
           register: requestPasswordChangeByEmail,
         },
       ])
-      .then(() => this._server.methods.requestPasswordChangeByEmail({
-        email: this._server.fakeUser.email,
+      .then(() => server.methods.requestPasswordChangeByEmail({
+        email: server.fakeUser.email,
       }))
   })
 })

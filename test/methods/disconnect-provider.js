@@ -30,11 +30,13 @@ let fakeUser = {
 }
 
 describe('disconnectProvider', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function() {
+    server = jimbo()
+
+    server.register([
       {
         register: modelsPlugin,
         options: {
@@ -44,14 +46,14 @@ describe('disconnectProvider', function() {
       {
         register: getById,
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
   this.timeout(4000)
 
   it('should disconnect not main provider', function() {
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -60,7 +62,7 @@ describe('disconnectProvider', function() {
           register: disconnectProvider,
         },
       ])
-      .then(() => this._server.methods.disconnectProvider({
+      .then(() => server.methods.disconnectProvider({
         userId: fakeUser.id,
         strategy: 'facebook',
       }))
@@ -70,7 +72,7 @@ describe('disconnectProvider', function() {
   })
 
   it('should not disconnect main provider', function(done) {
-    let result = this._server
+    let result = server
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
@@ -81,8 +83,8 @@ describe('disconnectProvider', function() {
           register: disconnectProvider,
         },
       ])
-      .then(() => this._server.methods.disconnectProvider({
-        userId: this._server.fakeUser.id,
+      .then(() => server.methods.disconnectProvider({
+        userId: server.fakeUser.id,
         strategy: 'facebook',
       }))
 
@@ -91,7 +93,7 @@ describe('disconnectProvider', function() {
   })
 
   it('should return error when disconnecting non-connected provider', function(done) {
-    let result = this._server
+    let result = server
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
@@ -102,8 +104,8 @@ describe('disconnectProvider', function() {
           register: disconnectProvider,
         },
       ])
-      .then(() => this._server.methods.disconnectProvider({
-        userId: this._server.fakeUser.id,
+      .then(() => server.methods.disconnectProvider({
+        userId: server.fakeUser.id,
         strategy: 'github',
       }))
 

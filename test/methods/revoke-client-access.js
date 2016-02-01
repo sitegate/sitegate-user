@@ -22,11 +22,13 @@ let fakeUser = {
 }
 
 describe('revokeClientAccess', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function() {
+    server = jimbo()
+
+    return server.register([
       {
         register: modelsPlugin,
         options: {
@@ -36,13 +38,13 @@ describe('revokeClientAccess', function() {
       {
         register: getById,
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
   it('should revoke client access if it is trusted by the user', function() {
     let trustedClientId = '507f191e810c19929de860ea'
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
@@ -53,8 +55,8 @@ describe('revokeClientAccess', function() {
           register: revokeClientAccess,
         },
       ])
-      .then(() => this._server.methods.revokeClientAccess({
-        userId: this._server.fakeUser.id,
+      .then(() => server.methods.revokeClientAccess({
+        userId: server.fakeUser.id,
         clientId: trustedClientId,
       }))
       .then(user => {
@@ -64,7 +66,7 @@ describe('revokeClientAccess', function() {
 
   it('should throw error if trying to revoke access from client that is not trusted', function(done) {
     let trustedClientId = '507f191e810c19929de860ea'
-    let result = this._server
+    let result = server
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
@@ -75,8 +77,8 @@ describe('revokeClientAccess', function() {
           register: revokeClientAccess,
         },
       ])
-      .then(() => this._server.methods.revokeClientAccess({
-        userId: this._server.fakeUser.id,
+      .then(() => server.methods.revokeClientAccess({
+        userId: server.fakeUser.id,
         clientId: trustedClientId,
       }))
 

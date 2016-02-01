@@ -21,23 +21,25 @@ let fakeUser = {
 }
 
 describe('query', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function() {
+    server = jimbo()
+
+    return server.register([
       {
         register: modelsPlugin,
         options: {
           mongoURI: MONGO_URI,
         },
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
   it('should users', function() {
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -53,7 +55,7 @@ describe('query', function() {
           register: query,
         },
       ])
-      .then(() => this._server.methods.query({
+      .then(() => server.methods.query({
         count: 2,
       }))
       .then(users => {

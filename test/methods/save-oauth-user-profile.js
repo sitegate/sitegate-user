@@ -25,11 +25,13 @@ let fakeUser = {
 }
 
 describe('saveOAuthUserProfile', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function() {
+    server = jimbo()
+
+    return server.register([
       {
         register: modelsPlugin,
         options: {
@@ -39,18 +41,18 @@ describe('saveOAuthUserProfile', function() {
       {
         register: getById,
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
   it('should create new account for new user', function() {
-    return this._server
+    return server
       .register([
         {
           register: saveOAuthUserProfile,
         },
       ])
-      .then(() => this._server.methods.saveOAuthUserProfile({
+      .then(() => server.methods.saveOAuthUserProfile({
         providerUserProfile: {
           username: 'james.bond',
           email: 'james.bond@gmail.com',
@@ -71,7 +73,7 @@ describe('saveOAuthUserProfile', function() {
   })
 
   it('should extend an existing account with a new provider', function(done) {
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -80,7 +82,7 @@ describe('saveOAuthUserProfile', function() {
           register: saveOAuthUserProfile,
         },
       ])
-      .then(() => this._server.methods.saveOAuthUserProfile({
+      .then(() => server.methods.saveOAuthUserProfile({
         providerUserProfile: {
           username: 'james.bond',
           email: fakeUser.email,

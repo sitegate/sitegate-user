@@ -25,23 +25,25 @@ let fakeUser = {
 }
 
 describe('verifyEmailByToken', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function() {
+    server = jimbo()
+
+    return server.register([
       {
         register: modelsPlugin,
         options: {
           mongoURI: MONGO_URI,
         },
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
   it('should verify email if token not expired', function() {
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
@@ -55,11 +57,11 @@ describe('verifyEmailByToken', function() {
           register: verifyEmailByToken,
         },
       ])
-      .then(() => this._server.methods.verifyEmailByToken({
+      .then(() => server.methods.verifyEmailByToken({
         token: fakeUser.emailVerificationToken,
       }))
-      .then(() => this._server.methods.getById({
-        id: this._server.fakeUser.id,
+      .then(() => server.methods.getById({
+        id: server.fakeUser.id,
       }))
       .then(user => {
         expect(user.emailVerified).to.be.true
@@ -68,7 +70,7 @@ describe('verifyEmailByToken', function() {
   })
 
   it('should fail if reset token expired', function(done) {
-    let result = this._server
+    let result = server
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
@@ -79,14 +81,14 @@ describe('verifyEmailByToken', function() {
           register: verifyEmailByToken,
         },
       ])
-      .then(() => this._server.methods.verifyEmailByToken({
+      .then(() => server.methods.verifyEmailByToken({
         token: fakeUser.emailVerificationToken,
       }))
     expect(result).to.be.rejectedWith(Error, 'Email verification token expired').notify(done)
   })
 
   it('should fail if reset token doesn\'t exist', function(done) {
-    let result = this._server
+    let result = server
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
@@ -97,7 +99,7 @@ describe('verifyEmailByToken', function() {
           register: verifyEmailByToken,
         },
       ])
-      .then(() => this._server.methods.verifyEmailByToken({
+      .then(() => server.methods.verifyEmailByToken({
         token: 'this token doesn\'t exist',
       }))
     expect(result).to.be.rejectedWith(Error, 'Invalid email verification token').notify(done)

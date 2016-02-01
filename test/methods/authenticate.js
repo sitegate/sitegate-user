@@ -24,25 +24,27 @@ let fakeUser = {
 }
 
 describe('authenticate', function() {
-  beforeEach(mongotest.prepareDb(config.get('mongodbURI')));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(config.get('mongodbURI')));
+  beforeEach(function() {
+    server = jimbo()
+
+    return server.register([
       {
         register: modelsPlugin,
         options: {
           mongoURI: config.get('mongodbURI'),
         },
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
   this.timeout(6000)
 
   it('should authenticate user with correct credentials by username', function() {
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -51,7 +53,7 @@ describe('authenticate', function() {
           register: authenticate,
         },
       ])
-      .then(() => this._server.methods.authenticate({
+      .then(() => server.methods.authenticate({
         usernameOrEmail: fakeUser.username,
         password: fakeUser.password,
       }))
@@ -62,7 +64,7 @@ describe('authenticate', function() {
   })
 
   it('should authenticate user with correct credentials by email', function() {
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -71,7 +73,7 @@ describe('authenticate', function() {
           register: authenticate,
         },
       ])
-      .then(() => this._server.methods.authenticate({
+      .then(() => server.methods.authenticate({
         usernameOrEmail: fakeUser.email,
         password: fakeUser.password,
       }))
@@ -82,7 +84,7 @@ describe('authenticate', function() {
   })
 
   it('should not authenticate user with correct username and incorrect password', function(done) {
-    let result = this._server
+    let result = server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -91,7 +93,7 @@ describe('authenticate', function() {
           register: authenticate,
         },
       ])
-      .then(() => this._server.methods.authenticate({
+      .then(() => server.methods.authenticate({
         usernameOrEmail: fakeUser.username,
         password: 'not correct password',
       }))
@@ -100,7 +102,7 @@ describe('authenticate', function() {
   })
 
   it('should not authenticate user with incorrect username or email field', function(done) {
-    let result = this._server
+    let result = server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -109,7 +111,7 @@ describe('authenticate', function() {
           register: authenticate,
         },
       ])
-      .then(() => this._server.methods.authenticate({
+      .then(() => server.methods.authenticate({
         usernameOrEmail: 'not.exists',
         password: fakeUser.password,
       }))

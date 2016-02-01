@@ -16,7 +16,8 @@ const MAX_INTERVAL = 300000
  * A Validation function for local strategy properties
  */
 function validateLocalStrategyProperty(property) {
-  return (this.provider !== 'local' && !this.updated) || property.length
+  return (this.provider !== 'local' && !this.updated) ||
+    property && property.length
 }
 
 /**

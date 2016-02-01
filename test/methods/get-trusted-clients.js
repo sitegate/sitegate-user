@@ -23,18 +23,20 @@ let fakeUser = {
 }
 
 describe('getTrustedClients', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function() {
+    server = jimbo()
+
+    return server.register([
       {
         register: modelsPlugin,
         options: {
           mongoURI: MONGO_URI,
         },
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
@@ -44,7 +46,7 @@ describe('getTrustedClients', function() {
       'f5c481eec10d4e979caac94a',
       '56230147a4d940f9bfa6e31d',
     ]
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(R.merge(fakeUser, {
@@ -68,8 +70,8 @@ describe('getTrustedClients', function() {
           register: getTrustedClients,
         },
       ])
-      .then(() => this._server.methods.getTrustedClients({
-        userId: this._server.fakeUser.id,
+      .then(() => server.methods.getTrustedClients({
+        userId: server.fakeUser.id,
       }))
       .then(clients => {
         expect(clients).to.eql(['result'])

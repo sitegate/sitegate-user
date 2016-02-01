@@ -25,11 +25,13 @@ let fakeUser = {
 }
 
 describe('changePassword', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function() {
+    server = jimbo()
+
+    return server.register([
       {
         register: modelsPlugin,
         options: {
@@ -39,14 +41,14 @@ describe('changePassword', function() {
       {
         register: getById,
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
   this.timeout(4000)
 
   it('should change password when correct current password passed', function() {
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -55,7 +57,7 @@ describe('changePassword', function() {
           register: changePassword,
         },
       ])
-      .then(() => this._server.methods.changePassword({
+      .then(() => server.methods.changePassword({
         userId: fakeUser.id,
         currentPassword: fakeUser.password,
         newPassword: 'new password',
@@ -63,7 +65,7 @@ describe('changePassword', function() {
   })
 
   it('should return error if incorrect current password', function(done) {
-    let result = this._server
+    let result = server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -72,7 +74,7 @@ describe('changePassword', function() {
           register: changePassword,
         },
       ])
-      .then(() => this._server.methods.changePassword({
+      .then(() => server.methods.changePassword({
         userId: fakeUser.id,
         currentPassword: 'incorrect password',
         newPassword: 'new password',
@@ -82,7 +84,7 @@ describe('changePassword', function() {
   })
 
   it('should return error if incorrect user id', function(done) {
-    let result = this._server
+    let result = server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -91,7 +93,7 @@ describe('changePassword', function() {
           register: changePassword,
         },
       ])
-      .then(() => this._server.methods.changePassword({
+      .then(() => server.methods.changePassword({
         userId: '507f191e810c19729de860ea',
         currentPassword: fakeUser.password,
         newPassword: 'new password',
@@ -101,7 +103,7 @@ describe('changePassword', function() {
   })
 
   it('should force new password', function() {
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -110,7 +112,7 @@ describe('changePassword', function() {
           register: changePassword,
         },
       ])
-      .then(() => this._server.methods.changePassword({
+      .then(() => server.methods.changePassword({
         userId: fakeUser.id,
         newPassword: 'new password',
         forceNewPassword: true,

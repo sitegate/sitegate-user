@@ -26,23 +26,25 @@ let fakeUser = {
 let fakeUserPlugin = helpers.userCreator(fakeUser)
 
 describe('sendVerificationEmail', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function() {
+    server = jimbo()
+
+    return server.register([
       {
         register: modelsPlugin,
         options: {
           mongoURI: MONGO_URI,
         },
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
   it('should send verification email', function() {
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -67,8 +69,8 @@ describe('sendVerificationEmail', function() {
           register: sendVerificationEmail,
         },
       ])
-      .then(() => this._server.methods.sendVerificationEmail({
-          userId: this._server.fakeUser.id,
+      .then(() => server.methods.sendVerificationEmail({
+          userId: server.fakeUser.id,
         }))
   })
 })

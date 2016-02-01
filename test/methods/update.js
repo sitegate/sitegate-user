@@ -30,11 +30,13 @@ let fakeUser = {
 let fakeUserPlugin = helpers.userCreator(fakeUser)
 
 describe('update', function() {
-  beforeEach(mongotest.prepareDb(MONGO_URI));
-  beforeEach(function(next) {
-    this._server = new jimbo.Server()
+  let server
 
-    this._server.register([
+  beforeEach(mongotest.prepareDb(MONGO_URI));
+  beforeEach(function() {
+    server = jimbo()
+
+    return server.register([
       {
         register: modelsPlugin,
         options: {
@@ -44,13 +46,13 @@ describe('update', function() {
       {
         register: getById,
       },
-    ], err => next(err))
+    ])
   })
   afterEach(mongotest.disconnect());
 
   it('should update user', function() {
     let spy = sinon.spy((params, cb) => cb())
-    return this._server
+    return server
       .register([
         {
           register: helpers.userCreator(fakeUser),
@@ -74,7 +76,7 @@ describe('update', function() {
           register: update,
         },
       ])
-      .then(() => this._server.methods
+      .then(() => server.methods
         .update({
           id: fakeUser.id,
           username: 'new-username',
